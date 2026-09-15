@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "app_name": "Castix",
+  "package_name": "me.elhizazi.Castix",
+  "category": "Multimedia",
+  "short_description": "Background playback utility with multiple Android privilege and accessibility backends.",
+  "detailed_description": "**Castix** is an Android utility for managing background playback and related playback restrictions through several privilege and accessibility backends.\n\n### Key Features\n- **Six backends:** Android Accessibility, Shizuku, Dhizuku, Root, LSPosed, and LSPatch.\n- **Backend status and permission checks:** Check supported backend availability directly from the main interface.\n- **Target-app selection:** Select the target application for supported playback workflows.\n- **AMOLED / black-screen mode:** Reduce screen activity with configurable clock styles.\n- **Clock customization:** Adjust clock scale, vertical position, and spacing.\n- **Quick Settings support:** Quickly toggle black-screen mode from Android Quick Settings.\n- **Multilingual interface:** Arabic, English, Chinese, Japanese, French, Spanish, Portuguese, German, Italian, Russian, and Turkish.\n\nCastix does not bundle Shizuku, Dhizuku, LSPosed, LSPatch, or a root solution. Features that use these backends require the corresponding service or environment to be installed and configured on the device.\n\n### Privacy and licensing\nCastix is open source and licensed under the GNU General Public License v3.0 or later.",
+  "developer_message": "Building practical open-source Android tools that give users more control over playback and device capabilities. Thank you for your support!",
+  "min_sdk": 24,
+  "target_sdk": 36,
+  "license": "GPL-3.0",
+  "requires_shizuku": true,
+  "open_source": true,
+  "tags": [
+    "android",
+    "multimedia",
+    "background-playback",
+    "accessibility",
+    "shizuku",
+    "dhizuku",
+    "root",
+    "lsposed",
+    "lspatch",
+    "amoled"
+  ],
+  "icon_url": "https://raw.githubusercontent.com/elhizazi1/Castix/refs/heads/main/fastlane/metadata/android/en-US/images/icon.png",
+  "app_website": "https://github.com/elhizazi1/Castix",
+  "repo_url": "https://github.com/elhizazi1/Castix",
+  "download_url": "https://github.com/elhizazi1/Castix/releases/download/v1.0/app-release.apk",
+  "screenshots": [
+    "https://raw.githubusercontent.com/elhizazi1/Castix/refs/heads/main/fastlane/metadata/android/en-US/images/phoneScreenshots/01.PNG",
+    "https://raw.githubusercontent.com/elhizazi1/Castix/refs/heads/main/fastlane/metadata/android/en-US/images/phoneScreenshots/02.PNG",
+    "https://raw.githubusercontent.com/elhizazi1/Castix/refs/heads/main/fastlane/metadata/android/en-US/images/phoneScreenshots/03.PNG",
+    "https://raw.githubusercontent.com/elhizazi1/Castix/refs/heads/main/fastlane/metadata/android/en-US/images/phoneScreenshots/04.PNG",
+    "https://raw.githubusercontent.com/elhizazi1/Castix/refs/heads/main/fastlane/metadata/android/en-US/images/phoneScreenshots/05.PNG",
+    "https://raw.githubusercontent.com/elhizazi1/Castix/refs/heads/main/fastlane/metadata/android/en-US/images/phoneScreenshots/06.PNG"
+  ],
+  "changelog": "### 🚀 Castix v1.0\n\nInitial stable release of Castix.\n\n- Six playback-related backends: Accessibility, Shizuku, Dhizuku, Root, LSPosed, and LSPatch.\n- Backend status and permission checks from the main interface.\n- Target-app selection for supported playback workflows.\n- AMOLED / black-screen mode with configurable clock styles.\n- Adjustable clock scale, vertical position, and spacing.\n- Quick Settings support for black-screen mode.\n- Multilingual interface with 11 supported languages.",
+  "developer": {
+    "name": "Jamal El Hizazi",
+    "account_url": "https://github.com/elhizazi1",
+    "email": "jamal@elhizazi.me",
+    "website": "https://siwane.xyz",
+    "portfolio": "https://jamal.elhizazi.me",
+    "donate_url": "https://paypal.me/Elhizazi",
+    "socials": {
+      "github": "https://github.com/elhizazi1"
+    }
+  },
+  "locales": {
+    "ar": {
+      "category": "الوسائط المتعددة",
+      "short_description": "أداة لتشغيل الوسائط في الخلفية عبر عدة أنظمة للصلاحيات وإمكانية الوصول في أندرويد.",
+      "developer_message": "أطوّر أدوات أندرويد مفتوحة المصدر تمنح المستخدمين تحكمًا أكبر في تشغيل الوسائط وقدرات الجهاز. شكرًا لدعمكم!",
+      "detailed_description": "**Castix** is an Android utility for managing background playback and related playback restrictions through several privilege and accessibility backends.\n\n### Key Features\n- **Six backends:** Android Accessibility, Shizuku, Dhizuku, Root, LSPosed, and LSPatch.\n- **Backend status and permission checks:** Check supported backend availability directly from the main interface.\n- **Target-app selection:** Select the target application for supported playback workflows.\n- **AMOLED / black-screen mode:** Reduce screen activity with configurable clock styles.\n- **Clock customization:** Adjust clock scale, vertical position, and spacing.\n- **Quick Settings support:** Quickly toggle black-screen mode from Android Quick Settings.\n- **Multilingual interface:** Arabic, English, Chinese, Japanese, French, Spanish, Portuguese, German, Italian, Russian, and Turkish.\n\nCastix does not bundle Shizuku, Dhizuku, LSPosed, LSPatch, or a root solution. Features that use these backends require the corresponding service or environment to be installed and configured on the device.\n\n### Privacy and licensing\nCastix is open source and licensed under the GNU General Public License v3.0 or later.",
+      "developer_name": "Jamal El Hizazi",
+      "changelog": "### 🚀 Castix v1.0\n\nInitial stable release of Castix.\n\n- Six playback-related backends: Accessibility, Shizuku, Dhizuku, Root, LSPosed, and LSPatch.\n- Backend status and permission checks from the main interface.\n- Target-app selection for supported playback workflows.\n- AMOLED / black-screen mode with configurable clock styles.\n- Adjustable clock scale, vertical position, and spacing.\n- Quick Settings support for black-screen mode.\n- Multilingual interface with 11 supported languages."
+    },
+    "fr": {
+      "category": "Multimédia",
+      "short_description": "Utilitaire de lecture en arrière-plan avec plusieurs moteurs Android de privilèges et d’accessibilité.",
+      "developer_message": "Je crée des outils Android open source pratiques qui donnent aux utilisateurs davantage de contrôle sur la lecture et les capacités de leur appareil. Merci pour votre soutien !",
+      "detailed_description": "**Castix** is an Android utility for managing background playback and related playback restrictions through several privilege and accessibility backends.\n\n### Key Features\n- **Six backends:** Android Accessibility, Shizuku, Dhizuku, Root, LSPosed, and LSPatch.\n- **Backend status and permission checks:** Check supported backend availability directly from the main interface.\n- **Target-app selection:** Select the target application for supported playback workflows.\n- **AMOLED / black-screen mode:** Reduce screen activity with configurable clock styles.\n- **Clock customization:** Adjust clock scale, vertical position, and spacing.\n- **Quick Settings support:** Quickly toggle black-screen mode from Android Quick Settings.\n- **Multilingual interface:** Arabic, English, Chinese, Japanese, French, Spanish, Portuguese, German, Italian, Russian, and Turkish.\n\nCastix does not bundle Shizuku, Dhizuku, LSPosed, LSPatch, or a root solution. Features that use these backends require the corresponding service or environment to be installed and configured on the device.\n\n### Privacy and licensing\nCastix is open source and licensed under the GNU General Public License v3.0 or later.",
+      "developer_name": "Jamal El Hizazi",
+      "changelog": "### 🚀 Castix v1.0\n\nInitial stable release of Castix.\n\n- Six playback-related backends: Accessibility, Shizuku, Dhizuku, Root, LSPosed, and LSPatch.\n- Backend status and permission checks from the main interface.\n- Target-app selection for supported playback workflows.\n- AMOLED / black-screen mode with configurable clock styles.\n- Adjustable clock scale, vertical position, and spacing.\n- Quick Settings support for black-screen mode.\n- Multilingual interface with 11 supported languages."
+    },
+    "es": {
+      "category": "Multimedia",
+      "short_description": "Utilidad de reproducción en segundo plano con varios sistemas de privilegios y accesibilidad de Android.",
+      "developer_message": "Creo herramientas Android prácticas y de código abierto que ofrecen a los usuarios más control sobre la reproducción y las capacidades del dispositivo. ¡Gracias por tu apoyo!",
+      "detailed_description": "**Castix** is an Android utility for managing background playback and related playback restrictions through several privilege and accessibility backends.\n\n### Key Features\n- **Six backends:** Android Accessibility, Shizuku, Dhizuku, Root, LSPosed, and LSPatch.\n- **Backend status and permission checks:** Check supported backend availability directly from the main interface.\n- **Target-app selection:** Select the target application for supported playback workflows.\n- **AMOLED / black-screen mode:** Reduce screen activity with configurable clock styles.\n- **Clock customization:** Adjust clock scale, vertical position, and spacing.\n- **Quick Settings support:** Quickly toggle black-screen mode from Android Quick Settings.\n- **Multilingual interface:** Arabic, English, Chinese, Japanese, French, Spanish, Portuguese, German, Italian, Russian, and Turkish.\n\nCastix does not bundle Shizuku, Dhizuku, LSPosed, LSPatch, or a root solution. Features that use these backends require the corresponding service or environment to be installed and configured on the device.\n\n### Privacy and licensing\nCastix is open source and licensed under the GNU General Public License v3.0 or later.",
+      "developer_name": "Jamal El Hizazi",
+      "changelog": "### 🚀 Castix v1.0\n\nInitial stable release of Castix.\n\n- Six playback-related backends: Accessibility, Shizuku, Dhizuku, Root, LSPosed, and LSPatch.\n- Backend status and permission checks from the main interface.\n- Target-app selection for supported playback workflows.\n- AMOLED / black-screen mode with configurable clock styles.\n- Adjustable clock scale, vertical position, and spacing.\n- Quick Settings support for black-screen mode.\n- Multilingual interface with 11 supported languages."
+    },
+    "pt": {
+      "category": "Multimídia",
+      "short_description": "Utilitário de reprodução em segundo plano com vários backends de privilégios e acessibilidade do Android.",
+      "developer_message": "Crio ferramentas Android práticas e de código aberto que dão aos usuários mais controle sobre a reprodução e os recursos do dispositivo. Obrigado pelo apoio!",
+      "detailed_description": "**Castix** is an Android utility for managing background playback and related playback restrictions through several privilege and accessibility backends.\n\n### Key Features\n- **Six backends:** Android Accessibility, Shizuku, Dhizuku, Root, LSPosed, and LSPatch.\n- **Backend status and permission checks:** Check supported backend availability directly from the main interface.\n- **Target-app selection:** Select the target application for supported playback workflows.\n- **AMOLED / black-screen mode:** Reduce screen activity with configurable clock styles.\n- **Clock customization:** Adjust clock scale, vertical position, and spacing.\n- **Quick Settings support:** Quickly toggle black-screen mode from Android Quick Settings.\n- **Multilingual interface:** Arabic, English, Chinese, Japanese, French, Spanish, Portuguese, German, Italian, Russian, and Turkish.\n\nCastix does not bundle Shizuku, Dhizuku, LSPosed, LSPatch, or a root solution. Features that use these backends require the corresponding service or environment to be installed and configured on the device.\n\n### Privacy and licensing\nCastix is open source and licensed under the GNU General Public License v3.0 or later.",
+      "developer_name": "Jamal El Hizazi",
+      "changelog": "### 🚀 Castix v1.0\n\nInitial stable release of Castix.\n\n- Six playback-related backends: Accessibility, Shizuku, Dhizuku, Root, LSPosed, and LSPatch.\n- Backend status and permission checks from the main interface.\n- Target-app selection for supported playback workflows.\n- AMOLED / black-screen mode with configurable clock styles.\n- Adjustable clock scale, vertical position, and spacing.\n- Quick Settings support for black-screen mode.\n- Multilingual interface with 11 supported languages."
+    },
+    "de": {
+      "category": "Multimedia",
+      "short_description": "Dienstprogramm für die Wiedergabe im Hintergrund mit mehreren Android-Backends für Berechtigungen und Bedienungshilfen.",
+      "developer_message": "Ich entwickle praktische Open-Source-Android-Tools, die Nutzern mehr Kontrolle über Wiedergabe und Gerätefunktionen geben. Danke für eure Unterstützung!",
+      "detailed_description": "**Castix** is an Android utility for managing background playback and related playback restrictions through several privilege and accessibility backends.\n\n### Key Features\n- **Six backends:** Android Accessibility, Shizuku, Dhizuku, Root, LSPosed, and LSPatch.\n- **Backend status and permission checks:** Check supported backend availability directly from the main interface.\n- **Target-app selection:** Select the target application for supported playback workflows.\n- **AMOLED / black-screen mode:** Reduce screen activity with configurable clock styles.\n- **Clock customization:** Adjust clock scale, vertical position, and spacing.\n- **Quick Settings support:** Quickly toggle black-screen mode from Android Quick Settings.\n- **Multilingual interface:** Arabic, English, Chinese, Japanese, French, Spanish, Portuguese, German, Italian, Russian, and Turkish.\n\nCastix does not bundle Shizuku, Dhizuku, LSPosed, LSPatch, or a root solution. Features that use these backends require the corresponding service or environment to be installed and configured on the device.\n\n### Privacy and licensing\nCastix is open source and licensed under the GNU General Public License v3.0 or later.",
+      "developer_name": "Jamal El Hizazi",
+      "changelog": "### 🚀 Castix v1.0\n\nInitial stable release of Castix.\n\n- Six playback-related backends: Accessibility, Shizuku, Dhizuku, Root, LSPosed, and LSPatch.\n- Backend status and permission checks from the main interface.\n- Target-app selection for supported playback workflows.\n- AMOLED / black-screen mode with configurable clock styles.\n- Adjustable clock scale, vertical position, and spacing.\n- Quick Settings support for black-screen mode.\n- Multilingual interface with 11 supported languages."
+    },
+    "it": {
+      "category": "Multimedia",
+      "short_description": "Utility per la riproduzione in background con diversi backend Android per privilegi e accessibilità.",
+      "developer_message": "Creo strumenti Android open source e pratici che offrono agli utenti un maggiore controllo sulla riproduzione e sulle funzioni del dispositivo. Grazie per il supporto!",
+      "detailed_description": "**Castix** is an Android utility for managing background playback and related playback restrictions through several privilege and accessibility backends.\n\n### Key Features\n- **Six backends:** Android Accessibility, Shizuku, Dhizuku, Root, LSPosed, and LSPatch.\n- **Backend status and permission checks:** Check supported backend availability directly from the main interface.\n- **Target-app selection:** Select the target application for supported playback workflows.\n- **AMOLED / black-screen mode:** Reduce screen activity with configurable clock styles.\n- **Clock customization:** Adjust clock scale, vertical position, and spacing.\n- **Quick Settings support:** Quickly toggle black-screen mode from Android Quick Settings.\n- **Multilingual interface:** Arabic, English, Chinese, Japanese, French, Spanish, Portuguese, German, Italian, Russian, and Turkish.\n\nCastix does not bundle Shizuku, Dhizuku, LSPosed, LSPatch, or a root solution. Features that use these backends require the corresponding service or environment to be installed and configured on the device.\n\n### Privacy and licensing\nCastix is open source and licensed under the GNU General Public License v3.0 or later.",
+      "developer_name": "Jamal El Hizazi",
+      "changelog": "### 🚀 Castix v1.0\n\nInitial stable release of Castix.\n\n- Six playback-related backends: Accessibility, Shizuku, Dhizuku, Root, LSPosed, and LSPatch.\n- Backend status and permission checks from the main interface.\n- Target-app selection for supported playback workflows.\n- AMOLED / black-screen mode with configurable clock styles.\n- Adjustable clock scale, vertical position, and spacing.\n- Quick Settings support for black-screen mode.\n- Multilingual interface with 11 supported languages."
+    },
+    "ru": {
+      "category": "Мультимедиа",
+      "short_description": "Утилита для фонового воспроизведения с несколькими механизмами привилегий и специальных возможностей Android.",
+      "developer_message": "Я создаю практичные Android-инструменты с открытым исходным кодом, которые дают пользователям больше контроля над воспроизведением и возможностями устройства. Спасибо за поддержку!",
+      "detailed_description": "**Castix** is an Android utility for managing background playback and related playback restrictions through several privilege and accessibility backends.\n\n### Key Features\n- **Six backends:** Android Accessibility, Shizuku, Dhizuku, Root, LSPosed, and LSPatch.\n- **Backend status and permission checks:** Check supported backend availability directly from the main interface.\n- **Target-app selection:** Select the target application for supported playback workflows.\n- **AMOLED / black-screen mode:** Reduce screen activity with configurable clock styles.\n- **Clock customization:** Adjust clock scale, vertical position, and spacing.\n- **Quick Settings support:** Quickly toggle black-screen mode from Android Quick Settings.\n- **Multilingual interface:** Arabic, English, Chinese, Japanese, French, Spanish, Portuguese, German, Italian, Russian, and Turkish.\n\nCastix does not bundle Shizuku, Dhizuku, LSPosed, LSPatch, or a root solution. Features that use these backends require the corresponding service or environment to be installed and configured on the device.\n\n### Privacy and licensing\nCastix is open source and licensed under the GNU General Public License v3.0 or later.",
+      "developer_name": "Jamal El Hizazi",
+      "changelog": "### 🚀 Castix v1.0\n\nInitial stable release of Castix.\n\n- Six playback-related backends: Accessibility, Shizuku, Dhizuku, Root, LSPosed, and LSPatch.\n- Backend status and permission checks from the main interface.\n- Target-app selection for supported playback workflows.\n- AMOLED / black-screen mode with configurable clock styles.\n- Adjustable clock scale, vertical position, and spacing.\n- Quick Settings support for black-screen mode.\n- Multilingual interface with 11 supported languages."
+    },
+    "zh": {
+      "category": "多媒体",
+      "short_description": "通过多种 Android 权限与无障碍后端管理后台媒体播放的工具。",
+      "developer_message": "我致力于打造实用的开源 Android 工具，让用户更好地控制媒体播放和设备能力。感谢您的支持！",
+      "detailed_description": "**Castix** is an Android utility for managing background playback and related playback restrictions through several privilege and accessibility backends.\n\n### Key Features\n- **Six backends:** Android Accessibility, Shizuku, Dhizuku, Root, LSPosed, and LSPatch.\n- **Backend status and permission checks:** Check supported backend availability directly from the main interface.\n- **Target-app selection:** Select the target application for supported playback workflows.\n- **AMOLED / black-screen mode:** Reduce screen activity with configurable clock styles.\n- **Clock customization:** Adjust clock scale, vertical position, and spacing.\n- **Quick Settings support:** Quickly toggle black-screen mode from Android Quick Settings.\n- **Multilingual interface:** Arabic, English, Chinese, Japanese, French, Spanish, Portuguese, German, Italian, Russian, and Turkish.\n\nCastix does not bundle Shizuku, Dhizuku, LSPosed, LSPatch, or a root solution. Features that use these backends require the corresponding service or environment to be installed and configured on the device.\n\n### Privacy and licensing\nCastix is open source and licensed under the GNU General Public License v3.0 or later.",
+      "developer_name": "Jamal El Hizazi",
+      "changelog": "### 🚀 Castix v1.0\n\nInitial stable release of Castix.\n\n- Six playback-related backends: Accessibility, Shizuku, Dhizuku, Root, LSPosed, and LSPatch.\n- Backend status and permission checks from the main interface.\n- Target-app selection for supported playback workflows.\n- AMOLED / black-screen mode with configurable clock styles.\n- Adjustable clock scale, vertical position, and spacing.\n- Quick Settings support for black-screen mode.\n- Multilingual interface with 11 supported languages."
+    },
+    "ja": {
+      "category": "マルチメディア",
+      "short_description": "Android の複数の権限・アクセシビリティバックエンドに対応したバックグラウンド再生ユーティリティ。",
+      "developer_message": "再生機能と端末の能力をより自由に操作できる、実用的なオープンソース Android ツールを開発しています。応援ありがとうございます！",
+      "detailed_description": "**Castix** is an Android utility for managing background playback and related playback restrictions through several privilege and accessibility backends.\n\n### Key Features\n- **Six backends:** Android Accessibility, Shizuku, Dhizuku, Root, LSPosed, and LSPatch.\n- **Backend status and permission checks:** Check supported backend availability directly from the main interface.\n- **Target-app selection:** Select the target application for supported playback workflows.\n- **AMOLED / black-screen mode:** Reduce screen activity with configurable clock styles.\n- **Clock customization:** Adjust clock scale, vertical position, and spacing.\n- **Quick Settings support:** Quickly toggle black-screen mode from Android Quick Settings.\n- **Multilingual interface:** Arabic, English, Chinese, Japanese, French, Spanish, Portuguese, German, Italian, Russian, and Turkish.\n\nCastix does not bundle Shizuku, Dhizuku, LSPosed, LSPatch, or a root solution. Features that use these backends require the corresponding service or environment to be installed and configured on the device.\n\n### Privacy and licensing\nCastix is open source and licensed under the GNU General Public License v3.0 or later.",
+      "developer_name": "Jamal El Hizazi",
+      "changelog": "### 🚀 Castix v1.0\n\nInitial stable release of Castix.\n\n- Six playback-related backends: Accessibility, Shizuku, Dhizuku, Root, LSPosed, and LSPatch.\n- Backend status and permission checks from the main interface.\n- Target-app selection for supported playback workflows.\n- AMOLED / black-screen mode with configurable clock styles.\n- Adjustable clock scale, vertical position, and spacing.\n- Quick Settings support for black-screen mode.\n- Multilingual interface with 11 supported languages."
+    },
+    "tr": {
+      "category": "Multimedya",
+      "short_description": "Birden fazla Android yetki ve erişilebilirlik arka ucuyla arka planda oynatma yardımcı aracı.",
+      "developer_message": "Kullanıcılara oynatma ve cihaz yetenekleri üzerinde daha fazla kontrol sağlayan pratik, açık kaynaklı Android araçları geliştiriyorum. Desteğiniz için teşekkürler!",
+      "detailed_description": "**Castix** is an Android utility for managing background playback and related playback restrictions through several privilege and accessibility backends.\n\n### Key Features\n- **Six backends:** Android Accessibility, Shizuku, Dhizuku, Root, LSPosed, and LSPatch.\n- **Backend status and permission checks:** Check supported backend availability directly from the main interface.\n- **Target-app selection:** Select the target application for supported playback workflows.\n- **AMOLED / black-screen mode:** Reduce screen activity with configurable clock styles.\n- **Clock customization:** Adjust clock scale, vertical position, and spacing.\n- **Quick Settings support:** Quickly toggle black-screen mode from Android Quick Settings.\n- **Multilingual interface:** Arabic, English, Chinese, Japanese, French, Spanish, Portuguese, German, Italian, Russian, and Turkish.\n\nCastix does not bundle Shizuku, Dhizuku, LSPosed, LSPatch, or a root solution. Features that use these backends require the corresponding service or environment to be installed and configured on the device.\n\n### Privacy and licensing\nCastix is open source and licensed under the GNU General Public License v3.0 or later.",
+      "developer_name": "Jamal El Hizazi",
+      "changelog": "### 🚀 Castix v1.0\n\nInitial stable release of Castix.\n\n- Six playback-related backends: Accessibility, Shizuku, Dhizuku, Root, LSPosed, and LSPatch.\n- Backend status and permission checks from the main interface.\n- Target-app selection for supported playback workflows.\n- AMOLED / black-screen mode with configurable clock styles.\n- Adjustable clock scale, vertical position, and spacing.\n- Quick Settings support for black-screen mode.\n- Multilingual interface with 11 supported languages."
+    }
+  }
+}
