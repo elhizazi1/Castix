@@ -24,7 +24,8 @@
     "amoled"
   ],
   "icon_url": "https://raw.githubusercontent.com/elhizazi1/Castix/refs/heads/main/fastlane/metadata/android/en-US/images/icon.png",
-  "app_website": "https://github.com/elhizazi1/Castix",
+  "banner_url": "https://raw.githubusercontent.com/elhizazi1/Castix/refs/heads/main/fastlane/metadata/android/en-US/images/featureGraphic.png"
+  "app_website": "https://Castix.elhizazi.me",
   "repo_url": "https://github.com/elhizazi1/Castix",
   "download_url": "https://github.com/elhizazi1/Castix/releases/download/v1.0/app-release.apk",
   "screenshots": [
