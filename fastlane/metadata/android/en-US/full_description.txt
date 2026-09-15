@@ -1,0 +1,14 @@
+Castix is an Android utility for managing background playback and related playback restrictions through several privilege and accessibility backends.
+
+Features:
+• Shizuku, Dhizuku, Root, LSPosed, LSPatch, and Android Accessibility backends.
+• Backend status and permission checks from the main interface.
+• Target-app selection for supported playback workflows.
+• AMOLED / black-screen mode with configurable clock styles.
+• Adjustable clock scale, vertical position, and spacing.
+• Quick Settings support for black-screen mode.
+• Multilingual interface, including Arabic, English, Chinese, Japanese, French, Spanish, Portuguese, German, Italian, Russian, and Turkish.
+
+Castix does not bundle Shizuku, Dhizuku, LSPosed, LSPatch, or a root solution. Features that use these backends require the corresponding service or environment to be installed and configured on the device.
+
+License: GNU General Public License v3.0 or later.

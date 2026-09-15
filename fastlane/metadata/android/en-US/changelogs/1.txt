@@ -1,0 +1,6 @@
+Initial public release of Castix 1.0.
+
+• Multiple playback privilege/accessibility backends.
+• AMOLED / black-screen mode and configurable clock styles.
+• Multilingual interface.
+• Quick Settings support.

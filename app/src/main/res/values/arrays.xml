@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="xposed_scope">
+        <item>me.elhizazi.Castix</item>
+        <item>android</item>
+        <item>com.google.android.youtube</item>
+        <item>com.google.android.apps.youtube.music</item>
+        <item>com.facebook.katana</item>
+        <item>com.instagram.android</item>
+        <item>com.twitter.android</item>
+        <item>com.instagram.barcelona</item>
+        <item>com.android.chrome</item>
+        <item>org.mozilla.firefox</item>
+        <item>com.spotify.music</item>
+        <item>com.soundcloud.android</item>
+        <item>com.netflix.mediaclient</item>
+    </string-array>
+</resources>

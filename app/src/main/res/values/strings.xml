@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Castix</string>
+    <string name="accessibility_service_desc">Allows Castix to detect foreground applications and show the floating trigger.</string>
+</resources>

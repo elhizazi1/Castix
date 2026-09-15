@@ -1,0 +1,6 @@
+{
+  "name": "Castix",
+  "description": "Android 17 background playback privilege escalation utility supporting Shizuku, Dhizuku, Root, LSPosed, LSPatch, and Accessibility backends.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
