@@ -785,7 +785,7 @@ class MainViewModel(
                 engine = result.engineUsed,
                 command = result.command,
                 exitCode = result.exitCode,
-                output = "[${task.title}] -> ${result.stdout.ifEmpty { "Executed successfully via ${activeEngine.displayName}" }}",
+                output = "[${task.title}] -> ${result.stdout.ifEmpty { if (result.isSuccess) "Executed successfully via ${activeEngine.displayName}" else result.stderr.ifEmpty { "Failed via ${activeEngine.displayName}" } }}",
                 isError = !result.isSuccess,
                 durationMs = result.executionTimeMs
             )

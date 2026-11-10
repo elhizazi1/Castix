@@ -118,7 +118,8 @@ class LSPosedEngine : IPrivilegeEngine {
             val hookSeenInLogcat: Boolean,
             val registered: Boolean,
             val moduleEnabled: Boolean,
-            val scope: List<String>
+            val scope: List<String>,
+            val lspdLog: String = ""
         ) {
             val selfInScope: Boolean get() = scope.contains("me.elhizazi.Castix")
         }
@@ -138,7 +139,10 @@ class LSPosedEngine : IPrivilegeEngine {
             ).lines().filter { it.contains('|') }
             val enabled = rows.any { it.substringBefore('|').trim() == "1" }
             val scope = rows.map { it.substringAfter('|').trim() }.filter { it.isNotEmpty() }.distinct()
-            return RootEvidence(seen, rows.isNotEmpty(), enabled, scope)
+            // LSPosed's own logs mention module load errors (ClassNotFound, bad entry class, ...).
+            val lspd = rootShell("grep -ih 'me.elhizazi.Castix' /data/adb/lspd/log/*.log | tail -n 4")
+                .take(400)
+            return RootEvidence(seen, rows.isNotEmpty(), enabled, scope, lspd)
         }
 
         /**
@@ -283,10 +287,12 @@ class LSPosedEngine : IPrivilegeEngine {
                 )
             }
             available -> {
-                val diag = when {
+                val lspdPart = if (evidence != null && evidence.lspdLog.isNotBlank())
+                    "من سجل LSPosed: " + evidence.lspdLog + " | " else "لا ذكر لـ Castix في سجلات LSPosed. "
+                val diag = lspdPart + when {
                     evidence == null -> ""
                     !evidence.registered ->
-                        "تشخيص: LSPosed لا يعرف الموديول (أو أداة sqlite3 غير متوفرة). "
+                        "(تعذّرت قراءة إعدادات LSPosed — sqlite3 غير متوفرة على الأرجح). لا أثر لـ CastixXposed في logcat: أوقف YouTube بالقوة وافتحه ثم أعد الفحص. "
                     else ->
                         (if (evidence.moduleEnabled) "الموديول: مفعّل ✓. " else "الموديول: غير مفعّل ✗ — فعّله في LSPosed. ") +
                         "النطاق: " + (if (evidence.scope.isEmpty()) "فارغ ✗. " else evidence.scope.joinToString() + ". ") +
