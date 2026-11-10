@@ -80,7 +80,9 @@ class PrivilegeEngineRepository(
      */
     suspend fun executeWithEngine(type: EngineType, command: String): ExecutionResult {
         val engine = getEngine(type)
-        if (type == EngineType.LSPATCH || type == EngineType.LSPOSED) return engine.executeCommand(command)
+        if (type != EngineType.ROOT) {
+            return engine.executeCommand(command)
+        }
         return engine.executeCommand(command)
     }
 

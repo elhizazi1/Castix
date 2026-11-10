@@ -742,30 +742,40 @@ class MainViewModel(
      * Dispatches the current user command through the selected strategy engine.
      */
     fun executeCustomCommand() {
-        val command = _uiState.value.commandInput.trim()
-        if (command.isEmpty()) return
-
-        val activeEngine = _uiState.value.selectedEngine
+        val snapshot = _uiState.value
+        val command = snapshot.commandInput.trim()
+        if (command.isEmpty() || snapshot.isExecuting) return
+        val activeEngine = snapshot.selectedEngine
+        if (activeEngine != EngineType.ROOT) {
+            appendConsoleLog(ConsoleEntry(
+                engine = activeEngine, command = command, exitCode = -1,
+                output = "This engine does not provide a verified terminal shell. No command was executed.",
+                isError = false
+            ))
+            return
+        }
         viewModelScope.launch {
             _uiState.update { it.copy(isExecuting = true) }
-
-            val result = repository.executeWithEngine(activeEngine, command)
-
-            val entry = ConsoleEntry(
-                engine = result.engineUsed,
-                command = result.command,
-                exitCode = result.exitCode,
-                output = if (result.isSuccess) {
-                    result.stdout.ifEmpty { "[Success with exit code 0]" }
-                } else {
-                    "${result.stderr.ifEmpty { "Command failed" }}\nExit code: ${result.exitCode}"
-                },
-                isError = !result.isSuccess,
-                durationMs = result.executionTimeMs
-            )
-
-            appendConsoleLog(entry)
-            _uiState.update { it.copy(isExecuting = false) }
+            try {
+                val result = repository.executeWithEngine(activeEngine, command)
+                appendConsoleLog(ConsoleEntry(
+                    engine = result.engineUsed,
+                    command = result.command,
+                    exitCode = result.exitCode,
+                    output = if (result.isSuccess) result.stdout.ifBlank { "Command completed (exit 0)." }
+                             else result.stderr.ifBlank { "Command failed (exit ${result.exitCode})." },
+                    isError = !result.isSuccess,
+                    durationMs = result.executionTimeMs
+                ))
+            } catch (e: Exception) {
+                if (e is kotlinx.coroutines.CancellationException) throw e
+                appendConsoleLog(ConsoleEntry(
+                    engine = activeEngine, command = command, exitCode = -1,
+                    output = "Command could not be completed: ${e.localizedMessage}", isError = true
+                ))
+            } finally {
+                _uiState.update { it.copy(isExecuting = false) }
+            }
         }
     }
 

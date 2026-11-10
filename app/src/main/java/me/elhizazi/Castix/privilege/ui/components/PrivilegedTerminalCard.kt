@@ -72,14 +72,11 @@ fun PrivilegedTerminalCard(
     onClearLogs: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val quickPresets = listOf(
-        "whoami",
-        "id",
-        "dumpsys audio | grep -i player",
-        "dumpsys deviceidle whitelist",
-        "getprop ro.build.version.release",
-        "cmd appops get ${activeEngine.name.lowercase()}"
-    )
+    val shellSupported = activeEngine == EngineType.ROOT
+    val quickPresets = if (shellSupported) listOf(
+        "id", "whoami", "getprop ro.build.version.release", "dumpsys audio"
+    ) else emptyList()
+
 
     Card(
         modifier = modifier
@@ -173,8 +170,24 @@ fun PrivilegedTerminalCard(
 
             Spacer(modifier = Modifier.height(12.dp))
 
+            if (!shellSupported) {
+                Text(
+                    text = when (activeEngine) {
+                        EngineType.SHIZUKU -> "Shizuku: remote shell execution is not implemented. No local shell fallback will be used."
+                        EngineType.DHIZUKU -> "Dhizuku provides device-owner APIs, not a general shell."
+                        EngineType.LSPOSED -> "LSPosed executes scoped hooks, not shell commands. Test hooks inside a target app."
+                        EngineType.LSPATCH -> "LSPatch executes hooks inside patched apps, not shell commands."
+                        EngineType.ACCESSIBILITY -> "Accessibility performs accessibility actions, not shell commands."
+                        else -> "This engine does not provide a shell."
+                    },
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodySmall
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+            }
+
             // Quick Preset Chips
-            Row(
+            if (shellSupported) Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .horizontalScroll(rememberScrollState()),
@@ -236,7 +249,7 @@ fun PrivilegedTerminalCard(
                         }
 
                         Text(
-                            text = "android17@sysarchitect ~ #",
+                            text = "${activeEngine.shortName} · ${if (shellSupported) "shell" else "status"}",
                             color = Color(0xFF64748B),
                             fontFamily = FontFamily.Monospace,
                             fontSize = 10.sp
@@ -279,7 +292,7 @@ fun PrivilegedTerminalCard(
             Spacer(modifier = Modifier.height(12.dp))
 
             // Command Input Field
-            Row(
+            if (shellSupported) Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {

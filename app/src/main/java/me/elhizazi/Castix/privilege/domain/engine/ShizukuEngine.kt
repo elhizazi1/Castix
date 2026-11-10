@@ -152,48 +152,16 @@ class ShizukuEngine : IPrivilegeEngine {
         }
     }
 
-    override suspend fun executeCommand(command: String): ExecutionResult = withContext(Dispatchers.IO) {
-        val startTime = SystemClock.elapsedRealtime()
-
-        // Shizuku executes via remote Binder proxy (or local runtime fallback in dev/test)
-        val sanitizedCmd = command.trim()
-        var duration = 0L
-
-        try {
-            // In Android 17, Shizuku invokes ShizukuRemoteProcess / Binder transact
-            // If Shizuku service is not active, run local fallback with informative Binder log
-            val process = Runtime.getRuntime().exec(arrayOf("sh", "-c", sanitizedCmd))
-            val stdout = process.inputStream.bufferedReader().use { it.readText() }
-            val stderr = process.errorStream.bufferedReader().use { it.readText() }
-            val exitCode = process.waitFor()
-            duration = SystemClock.elapsedRealtime() - startTime
-
-            val formattedStdout = if (stdout.isBlank() && exitCode == 0) {
-                "[Shizuku Binder IPC: Command dispatched successfully to remote daemon (UID 2000)]"
-            } else {
-                stdout.trim()
-            }
-
-            ExecutionResult(
-                command = sanitizedCmd,
-                exitCode = exitCode,
-                stdout = formattedStdout,
-                stderr = stderr.trim(),
-                executionTimeMs = duration,
-                engineUsed = EngineType.SHIZUKU
-            )
-        } catch (e: Exception) {
-            duration = SystemClock.elapsedRealtime() - startTime
-            ExecutionResult(
-                command = sanitizedCmd,
-                exitCode = -1,
-                stdout = "",
-                stderr = "Shizuku Binder IPC dispatch error: ${e.localizedMessage}",
-                executionTimeMs = duration,
-                engineUsed = EngineType.SHIZUKU
-            )
-        }
-    }
+    // Fail closed: a local app-UID shell is NOT a Shizuku shell.
+    // Implement a genuine Shizuku UserService / remote-process bridge before enabling this.
+    override suspend fun executeCommand(command: String): ExecutionResult = ExecutionResult(
+        command = command,
+        exitCode = -1,
+        stdout = "",
+        stderr = "Shizuku remote command execution is not implemented. The app will not impersonate Shizuku using a local shell.",
+        executionTimeMs = 0L,
+        engineUsed = EngineType.SHIZUKU
+    )
 
     override suspend fun executePlaybackTask(
         task: PlaybackOptimizationTask,

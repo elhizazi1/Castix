@@ -170,32 +170,14 @@ class RootEngine : IPrivilegeEngine {
                 engineUsed = EngineType.ROOT
             )
         } catch (e: Exception) {
-            // In non-rooted or simulated environments, fallback gracefully to shell
-            val duration = SystemClock.elapsedRealtime() - startTime
-            try {
-                val fallbackProcess = Runtime.getRuntime().exec(arrayOf("sh", "-c", sanitizedCmd))
-                val stdout = fallbackProcess.inputStream.bufferedReader().use { it.readText() }
-                val stderr = fallbackProcess.errorStream.bufferedReader().use { it.readText() }
-                val exit = fallbackProcess.waitFor()
-
-                ExecutionResult(
-                    command = sanitizedCmd,
-                    exitCode = exit,
-                    stdout = if (stdout.isNotBlank()) stdout.trim() else "[Executed in standard sandbox shell]",
-                    stderr = if (stderr.isNotBlank()) stderr.trim() else "Notice: su daemon not responding; dispatched via standard shell.",
-                    executionTimeMs = SystemClock.elapsedRealtime() - startTime,
-                    engineUsed = EngineType.ROOT
-                )
-            } catch (fallbackEx: Exception) {
-                ExecutionResult(
-                    command = sanitizedCmd,
-                    exitCode = -1,
-                    stdout = "",
-                    stderr = "Root (su) execution error: ${e.localizedMessage}",
-                    executionTimeMs = duration,
-                    engineUsed = EngineType.ROOT
-                )
-            }
+            ExecutionResult(
+                command = sanitizedCmd,
+                exitCode = -1,
+                stdout = "",
+                stderr = "Root shell unavailable: ${e.localizedMessage}. No unprivileged fallback was executed.",
+                executionTimeMs = SystemClock.elapsedRealtime() - startTime,
+                engineUsed = EngineType.ROOT
+            )
         }
     }
 

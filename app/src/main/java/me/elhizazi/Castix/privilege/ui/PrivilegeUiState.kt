@@ -18,7 +18,7 @@ data class PrivilegeUiState(
     val isRefreshing: Boolean = false,
     val isExecuting: Boolean = false,
     val activePlaybackTasks: Set<PlaybackOptimizationTask> = emptySet(),
-    val commandInput: String = "dumpsys audio | grep -i player",
+    val commandInput: String = "id",
     val consoleLogs: List<ConsoleEntry> = emptyList(),
     val systemInfo: SystemDeviceInfo = SystemDeviceInfo(),
     val notificationMessage: String? = null,
