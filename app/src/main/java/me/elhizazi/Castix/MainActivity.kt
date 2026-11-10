@@ -53,6 +53,7 @@ class MainActivity : ComponentActivity() {
   override fun onResume() {
     super.onResume()
     // Refresh status when returning from other apps (e.g. LSPosed Manager or Shizuku)
+    viewModel.refreshPermissionsAndLockState()
     viewModel.refreshEngineStatus()
   }
 
