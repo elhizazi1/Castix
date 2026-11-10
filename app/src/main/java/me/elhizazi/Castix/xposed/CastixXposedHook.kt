@@ -35,15 +35,16 @@ class CastixXposedHook : IXposedHookLoadPackage {
 
     override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam?) {
         val pkg = lpparam?.packageName ?: return
-        val processName = lpparam.processName ?: ""
 
         // Detect the actual runtime framework before reporting an engine as active.
-        if (pkg == MY_PACKAGE_NAME || processName.contains(MY_PACKAGE_NAME)) {
+        if (pkg == MY_PACKAGE_NAME) {
             val isLSPatchRuntime = runCatching {
                 Class.forName("org.lsposed.lspatch.Loader", false, lpparam.classLoader)
                 true
             }.getOrDefault(false)
 
+            // This callback is invoked by the framework inside the app process.
+            // It is evidence of real entrypoint execution, not just manager installation.
             if (isLSPatchRuntime) {
                 Log.i(TAG, "[Castix] Loaded inside Castix process through LSPatch.")
                 LSPatchEngine.isModulePatchedActive = true

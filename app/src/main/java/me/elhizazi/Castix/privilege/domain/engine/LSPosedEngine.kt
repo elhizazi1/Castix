@@ -235,10 +235,10 @@ class LSPosedEngine : IPrivilegeEngine {
                 ServiceHealth(
                     type = EngineType.LSPOSED,
                     status = EngineHealthStatus.ACTIVE,
-                    message = "موديول LSPosed مفعل ونشط (ART Zygisk)",
+                    message = "تم تحميل موديول Castix داخل عملية التطبيق",
                     version = managerVersion,
                     isUsable = true,
-                    details = "تم تفعيل الموديول بنجاح ضمن نطاق LSPosed، وحقن تجاوزات الصوت بالخلفية نشطة."
+                    details = "تم تنفيذ نقطة دخول Xposed داخل Castix. يلزم التحقق من تحميلها داخل التطبيقات المستهدفة قبل تأكيد عمل Hooks الصوت."
                 )
             }
             available -> {
