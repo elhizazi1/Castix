@@ -37,7 +37,6 @@
         <provider android:authorities="moe.shizuku.privileged.api.provider" />
         <provider android:authorities="af.shizuku.plus.api.provider" />
         <provider android:authorities="com.hamondev.shevery.provider" />
-        <provider android:authorities="com.rosan.dhizuku.provider" />
         <intent>
             <action android:name="android.intent.action.MAIN" />
         </intent>
