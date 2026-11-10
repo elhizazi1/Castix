@@ -114,6 +114,33 @@ class LSPosedEngine : IPrivilegeEngine {
             }.getOrDefault(false)
         }
 
+        class RootEvidence(
+            val hookSeenInLogcat: Boolean,
+            val registered: Boolean,
+            val moduleEnabled: Boolean,
+            val scope: List<String>
+        ) {
+            val selfInScope: Boolean get() = scope.contains("me.elhizazi.Castix")
+        }
+
+        /**
+         * Independent proof via root, not requiring Castix itself to be in scope:
+         * 1) the hook logs "CastixXposed" inside the target apps -> read it back from logcat;
+         * 2) LSPosed's own config DB tells whether the module is enabled and for which apps.
+         */
+        fun readRootEvidence(): RootEvidence {
+            val log = rootShell("logcat -d -s CastixXposed:I | tail -n 40")
+            val seen = log.contains("entrypoint invoked") || log.contains("Module active in Castix")
+            val rows = rootShell(
+                "sqlite3 /data/adb/lspd/config/modules_config.db " +
+                "\"select m.enabled, ifnull(s.app_pkg_name,'') from modules m " +
+                "left join scope s on s.mid=m.mid where m.module_pkg_name='me.elhizazi.Castix'\""
+            ).lines().filter { it.contains('|') }
+            val enabled = rows.any { it.substringBefore('|').trim() == "1" }
+            val scope = rows.map { it.substringAfter('|').trim() }.filter { it.isNotEmpty() }.distinct()
+            return RootEvidence(seen, rows.isNotEmpty(), enabled, scope)
+        }
+
         /**
          * TRUE only if the framework hooked XposedStatus.isModuleActive() inside THIS process.
          * (A static flag set from the module would be written to a different ClassLoader copy.)
@@ -229,6 +256,7 @@ class LSPosedEngine : IPrivilegeEngine {
 
     override suspend fun getHealth(context: Context): ServiceHealth = withContext(Dispatchers.IO) {
         val active = isModuleActivatedInScope
+        val evidence = if (active) null else readRootEvidence()
         val available = isAvailable(context)
         val managerName = getDetectedManagerName(context) ?: "LSPosed Manager"
         val managerVersion = getDetectedManagerVersion(context)
@@ -244,14 +272,34 @@ class LSPosedEngine : IPrivilegeEngine {
                     details = "تم تنفيذ نقطة دخول Xposed داخل Castix. يلزم التحقق من تحميلها داخل التطبيقات المستهدفة قبل تأكيد عمل Hooks الصوت."
                 )
             }
+            evidence?.hookSeenInLogcat == true -> {
+                ServiceHealth(
+                    type = EngineType.LSPOSED,
+                    status = EngineHealthStatus.ACTIVE,
+                    message = "الموديول يعمل داخل التطبيقات المستهدفة",
+                    version = managerVersion,
+                    isUsable = true,
+                    details = "رُصد تشغيل الهوك داخل التطبيقات المستهدفة (logcat: CastixXposed)."
+                )
+            }
             available -> {
+                val diag = when {
+                    evidence == null -> ""
+                    !evidence.registered ->
+                        "تشخيص: LSPosed لا يعرف الموديول (أو أداة sqlite3 غير متوفرة). "
+                    else ->
+                        (if (evidence.moduleEnabled) "الموديول: مفعّل ✓. " else "الموديول: غير مفعّل ✗ — فعّله في LSPosed. ") +
+                        "النطاق: " + (if (evidence.scope.isEmpty()) "فارغ ✗. " else evidence.scope.joinToString() + ". ") +
+                        (if (evidence.selfInScope) "Castix ضمن النطاق ✓. " else "Castix نفسه ليس ضمن النطاق ✗. ") +
+                        "لا أثر لـ CastixXposed في logcat: أوقف YouTube بالقوة وافتحه ثم أعد الفحص. "
+                }
                 ServiceHealth(
                     type = EngineType.LSPOSED,
                     status = EngineHealthStatus.INSTALLED_INACTIVE,
                     message = "$managerName متاح (بانتظار التفعيل)",
                     version = managerVersion,
                     isUsable = false,
-                    details = "تم اكتشاف مدير LSPosed، لكن Castix لم يُحمَّل بعد داخل عمليته. في LSPosed: فعّل وحدة Castix وحدّد Castix نفسه ضمن النطاق (Scope) مع التطبيقات المستهدفة، ثم أوقف Castix بالقوة (Force stop) وافتحه من جديد."
+                    details = diag + "تم اكتشاف مدير LSPosed، لكن Castix لم يُحمَّل بعد داخل عمليته. في LSPosed: فعّل وحدة Castix وحدّد Castix نفسه ضمن النطاق (Scope) مع التطبيقات المستهدفة، ثم أوقف Castix بالقوة (Force stop) وافتحه من جديد."
                 )
             }
             else -> {

@@ -823,6 +823,7 @@ class MainViewModel(
     fun toggleLSPosedModule(active: Boolean) {
         val app = getApplication<Application>()
         val live = me.elhizazi.Castix.privilege.domain.engine.LSPosedEngine.isModuleActivatedInScope ||
+            _uiState.value.engineHealthMap[EngineType.LSPOSED]?.isUsable == true ||
             me.elhizazi.Castix.privilege.domain.engine.LSPatchEngine.isModulePatchedActive ||
             _uiState.value.engineHealthMap[EngineType.LSPATCH]?.isUsable == true
         if (!live) {

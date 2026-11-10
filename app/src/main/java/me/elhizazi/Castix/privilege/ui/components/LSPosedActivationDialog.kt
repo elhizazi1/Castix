@@ -57,6 +57,7 @@ import me.elhizazi.Castix.ui.theme.NeonGreen
 @Composable
 fun LSPosedActivationDialog(
     isModuleActive: Boolean,
+    diagnosis: String = "",
     onDismiss: () -> Unit,
     onOpenManagerApp: (() -> Unit)? = null,
     onRefreshStatus: () -> Unit,
@@ -150,7 +151,7 @@ fun LSPosedActivationDialog(
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-                        val frameworkActive = LSPosedEngine.isModuleActivatedInScope
+                        val frameworkActive = isModuleActive
                         Surface(
                             shape = RoundedCornerShape(6.dp),
                             color = if (frameworkActive) {
@@ -198,6 +199,14 @@ fun LSPosedActivationDialog(
                         }
                     }
                 }
+            }
+
+            if (diagnosis.isNotBlank()) {
+                Text(
+                    text = diagnosis,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
             }
 
             // Explanatory Instructions Matching user's screenshot

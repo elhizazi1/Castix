@@ -419,7 +419,8 @@ fun PrivilegeHomeScreen(
     if (uiState.showLSPosedDialog) {
         LSPosedActivationDialog(
             // Same real signal as the framework row (not mixed with LSPatch / user toggle).
-            isModuleActive = me.elhizazi.Castix.privilege.domain.engine.LSPosedEngine.isModuleActivatedInScope,
+            isModuleActive = uiState.engineHealthMap[EngineType.LSPOSED]?.isUsable == true,
+            diagnosis = uiState.engineHealthMap[EngineType.LSPOSED]?.let { if (it.isUsable) "" else it.details } ?: "",
             onDismiss = { viewModel.setShowLSPosedDialog(false) },
             onRefreshStatus = {
                 viewModel.refreshEngineStatus()
