@@ -5,6 +5,14 @@ plugins {
   alias(libs.plugins.roborazzi)
 }
 
+// SAFETY NET: a bundled copy of the Xposed API (IXposedHookLoadPackage ...) inside the APK makes
+// LSPosed log "This class doesn't implement any sub-interface of IXposedMod, skipping it" and
+// silently ignore the module. The API must stay compileOnly (libs/xposed-api-compile-only.jar).
+file("src/main/java/de/robv").takeIf { it.exists() }?.let { stale ->
+  logger.warn("Castix: deleting stale bundled Xposed stub sources: $stale")
+  stale.deleteRecursively()
+}
+
 android {
   namespace = "me.elhizazi.Castix"
   compileSdk { version = release(36) { minorApiLevel = 1 } }
