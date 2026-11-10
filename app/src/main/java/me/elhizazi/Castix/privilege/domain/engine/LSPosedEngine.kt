@@ -45,9 +45,9 @@ class LSPosedEngine : IPrivilegeEngine {
         fun getDetectedManagerVersion(context: Context): String? {
             val pm = context.packageManager
             for (pkg in LSPOSED_PACKAGES) {
-                val info = runCatching { pm.getPackageInfo(pkg, 0) }.getOrNull() ?: continue
-                val version = info.versionName ?: "unknown"
-                return "$version ($pkg)"
+                val info = runCatching { pm.getPackageInfo(pkg, 0) }.getOrNull()
+                if (info != null) return "${info.versionName ?: "unknown"} ($pkg)"
+                if (isPackageInstalled(pm, pkg)) return "installed ($pkg; version hidden)"
             }
             return null
         }
@@ -75,7 +75,27 @@ class LSPosedEngine : IPrivilegeEngine {
         }
 
         private fun isPackageInstalled(pm: PackageManager, packageName: String): Boolean {
-            return runCatching { pm.getPackageInfo(packageName, 0) }.isSuccess
+            if (runCatching { pm.getPackageInfo(packageName, 0) }.isSuccess) return true
+            // LSPosed forks may hide their manager from ordinary PackageManager queries.
+            // A successful root package query is evidence of installation, not activation.
+            return rootShell("pm path $packageName").startsWith("package:")
+        }
+
+        private fun rootShell(command: String): String = runCatching {
+            val process = ProcessBuilder("su", "-c", command).redirectErrorStream(true).start()
+            if (!process.waitFor(3, java.util.concurrent.TimeUnit.SECONDS)) {
+                process.destroyForcibly()
+                return@runCatching ""
+            }
+            if (process.exitValue() != 0) return@runCatching ""
+            process.inputStream.bufferedReader().use { it.readText().trim() }
+        }.getOrDefault("")
+
+        private fun launchViaRoot(packageName: String): Boolean {
+            // `monkey` resolves the fork's launcher through the system package manager,
+            // including managers that hide their launcher from third-party apps.
+            val output = rootShell("monkey -p $packageName -c android.intent.category.LAUNCHER 1")
+            return output.contains("Events injected: 1")
         }
 
         private fun checkLSPosedRootFiles(): Boolean {
@@ -102,7 +122,7 @@ class LSPosedEngine : IPrivilegeEngine {
     override suspend fun isAvailable(context: Context): Boolean = withContext(Dispatchers.IO) {
         val pm = context.packageManager
         val lsposedManagerFound = LSPOSED_PACKAGES.any { pkg ->
-            runCatching { pm.getPackageInfo(pkg, 0) }.isSuccess
+            isPackageInstalled(pm, pkg)
         }
 
         // Castix bundles the legacy Xposed API interfaces as compile-time stubs,
@@ -155,13 +175,19 @@ class LSPosedEngine : IPrivilegeEngine {
                 }
             }
 
-            // 3. The legacy manager action may be exposed by some forks.
+            // 3. Root fallback for hidden LSPosed manager activities.
+            // Do not claim success unless the system launcher actually reports an event.
+            for (pkg in LSPOSED_PACKAGES) {
+                if (isPackageInstalled(pm, pkg) && launchViaRoot(pkg)) return@runCatching true
+            }
+
+            // 4. The legacy manager action may be exposed by some forks.
             val actionIntent = Intent(LSPOSED_ACTION_MANAGER).apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
             if (runCatching { context.startActivity(actionIntent) }.isSuccess) return@runCatching true
 
-            // 4. Last resort: open the installed manager's system details rather
+            // 5. Last resort: open the installed manager's system details rather
             // than silently doing nothing. This does not claim to activate hooks.
             for (pkg in LSPOSED_PACKAGES) {
                 if (!isPackageInstalled(pm, pkg)) continue
