@@ -107,7 +107,8 @@ fun LSPosedActivationDialog(
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
-                            text = AppStrings.text("lsposed_dialog_version"),
+                            text = LSPosedEngine.getDetectedManagerVersion(context)
+                                ?: AppStrings.text("lsposed_dialog_version"),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )

@@ -1,0 +1,6 @@
+LSPosed 2.2.1 manager detection patch
+- Read installed manager version and package dynamically; do not hardcode 2.2.0.
+- Prefer the actually installed manager; tolerate launch failures and try alternate supported intents.
+- Do not claim a detected manager proves module injection.
+- This does NOT implement real hooks or cross-process activation acknowledgement.
+- No changes to Dhizuku, SDK, R8, Shizuku, Root, Accessibility or LSPatch.

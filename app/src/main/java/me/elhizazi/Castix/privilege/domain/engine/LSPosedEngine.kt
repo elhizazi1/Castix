@@ -40,6 +40,17 @@ class LSPosedEngine : IPrivilegeEngine {
 
         const val LSPOSED_ACTION_MANAGER = "org.lsposed.manager.ACTION_MANAGER"
 
+        /** Manager identity is independent from the Xposed runtime and module activation. */
+        fun getDetectedManagerVersion(context: Context): String? {
+            val pm = context.packageManager
+            for (pkg in LSPOSED_PACKAGES) {
+                val info = runCatching { pm.getPackageInfo(pkg, 0) }.getOrNull() ?: continue
+                val version = info.versionName ?: "unknown"
+                return "$version ($pkg)"
+            }
+            return null
+        }
+
         fun getDetectedManagerName(context: Context): String? {
             val pm = context.packageManager
             if (isPackageInstalled(pm, "org.lsposed.manager") || isPackageInstalled(pm, "io.github.lsposed.manager") || isPackageInstalled(pm, "org.lsposed.manager.release")) {
@@ -109,24 +120,24 @@ class LSPosedEngine : IPrivilegeEngine {
         runCatching {
             val pm = context.packageManager
 
-            // 1. Try launching the manager app via package launch intent
+            // 1. Prefer the installed manager's own exported launcher, never a different fork.
+            // The manager can be installed without an exported launcher on some builds.
             for (pkg in LSPOSED_PACKAGES) {
+                if (!isPackageInstalled(pm, pkg)) continue
                 val launchIntent = pm.getLaunchIntentForPackage(pkg)
-                if (launchIntent != null) {
+                if (launchIntent != null && runCatching {
                     launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     context.startActivity(launchIntent)
-                    return@runCatching true
-                }
+                }.isSuccess) return@runCatching true
             }
 
             // 2. Try LSPosed manager action, including managers without a launcher icon.
             val actionIntent = Intent(LSPOSED_ACTION_MANAGER).apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
-            if (actionIntent.resolveActivity(pm) != null) {
+            if (actionIntent.resolveActivity(pm) != null && runCatching {
                 context.startActivity(actionIntent)
-                return@runCatching true
-            }
+            }.isSuccess) return@runCatching true
 
             // 3. Try main launcher intent for each known package
             for (pkg in LSPOSED_PACKAGES) {
@@ -135,10 +146,9 @@ class LSPosedEngine : IPrivilegeEngine {
                     addCategory(Intent.CATEGORY_LAUNCHER)
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 }
-                if (mainIntent.resolveActivity(pm) != null) {
+                if (mainIntent.resolveActivity(pm) != null && runCatching {
                     context.startActivity(mainIntent)
-                    return@runCatching true
-                }
+                }.isSuccess) return@runCatching true
             }
 
             // 4. If no LSPosed manager was found, explain cleanly without any dialer code or browser redirection
@@ -171,6 +181,7 @@ class LSPosedEngine : IPrivilegeEngine {
         val active = isModuleActivatedInScope
         val available = isAvailable(context)
         val managerName = getDetectedManagerName(context) ?: "LSPosed Manager"
+        val managerVersion = getDetectedManagerVersion(context)
 
         when {
             active -> {
@@ -178,7 +189,7 @@ class LSPosedEngine : IPrivilegeEngine {
                     type = EngineType.LSPOSED,
                     status = EngineHealthStatus.ACTIVE,
                     message = "موديول LSPosed مفعل ونشط (ART Zygisk)",
-                    version = "v2.2.0 (API 102)",
+                    version = managerVersion,
                     isUsable = true,
                     details = "تم تفعيل الموديول بنجاح ضمن نطاق LSPosed، وحقن تجاوزات الصوت بالخلفية نشطة."
                 )
@@ -188,9 +199,9 @@ class LSPosedEngine : IPrivilegeEngine {
                     type = EngineType.LSPOSED,
                     status = EngineHealthStatus.INSTALLED_INACTIVE,
                     message = "$managerName متاح (بانتظار التفعيل)",
-                    version = "v2.2.0 (API 102)",
+                    version = managerVersion,
                     isUsable = false,
-                    details = "إطار LSPosed مثبت ونشط. افتح تبويب «الإضافات» في المدير وقم بتفعيل Castix."
+                    details = "تم اكتشاف مدير LSPosed، لكن لا يوجد إثبات بأن Castix قد حُمّل داخل عملية التطبيق. تحقق من تفعيل الوحدة والنطاق وأعد تشغيل التطبيق المستهدف."
                 )
             }
             else -> {
