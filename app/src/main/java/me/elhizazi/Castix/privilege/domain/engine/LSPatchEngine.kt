@@ -9,7 +9,7 @@ import me.elhizazi.Castix.privilege.domain.model.EngineType
 import me.elhizazi.Castix.privilege.domain.model.ExecutionResult
 import me.elhizazi.Castix.privilege.domain.model.PlaybackOptimizationTask
 import me.elhizazi.Castix.privilege.domain.model.ServiceHealth
-import me.elhizazi.Castix.xposed.CastixXposedHook
+import me.elhizazi.Castix.xposed.HookTargets
 import me.elhizazi.Castix.xposed.XposedStatus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -43,7 +43,7 @@ class LSPatchEngine : IPrivilegeEngine {
         /** Installed target apps that have been patched with LSPatch. */
         fun findPatchedTargets(context: Context): List<String> {
             val pm = context.packageManager
-            return CastixXposedHook.SUPPORTED_PACKAGES
+            return HookTargets.SUPPORTED_PACKAGES
                 .filter { pkg ->
                     runCatching {
                         isLSPatched(pm.getApplicationInfo(pkg, PackageManager.GET_META_DATA))

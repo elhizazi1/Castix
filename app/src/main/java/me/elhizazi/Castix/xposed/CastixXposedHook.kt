@@ -18,20 +18,7 @@ class CastixXposedHook : IXposedHookLoadPackage {
     companion object {
         private const val TAG = "CastixXposed"
         const val MY_PACKAGE_NAME = "me.elhizazi.Castix"
-        val SUPPORTED_PACKAGES = setOf(
-            MY_PACKAGE_NAME,
-            "com.google.android.youtube",
-            "com.google.android.apps.youtube.music",
-            "com.facebook.katana",
-            "com.instagram.android",
-            "com.twitter.android",
-            "com.instagram.barcelona",
-            "com.android.chrome",
-            "org.mozilla.firefox",
-            "com.spotify.music",
-            "com.soundcloud.android",
-            "com.netflix.mediaclient"
-        )
+        val SUPPORTED_PACKAGES = HookTargets.SUPPORTED_PACKAGES
         private const val GRANTED = 1 // AudioManager.AUDIOFOCUS_REQUEST_GRANTED
 
         private fun detectLSPatch(lpparam: XC_LoadPackage.LoadPackageParam): Boolean {
