@@ -91,47 +91,43 @@ class CastixAccessibilityService : AccessibilityService() {
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         if (event == null) return
         val eventType = event.eventType
-        if (eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED ||
-            eventType == AccessibilityEvent.TYPE_WINDOWS_CHANGED ||
-            eventType == AccessibilityEvent.TYPE_VIEW_FOCUSED ||
-            eventType == AccessibilityEvent.TYPE_VIEW_CLICKED) {
+        // Click and focus events may originate from stale/covered windows. Only
+        // window transitions update the foreground app, and window state wins.
+        if (eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED &&
+            eventType != AccessibilityEvent.TYPE_WINDOWS_CHANGED) return
 
-            val eventPkg = event.packageName?.toString()
-            val windowPkg = findTopInteractivePackage()
-
-            // Resolve real user application package:
-            // Prefer eventPkg if it's a valid user package; otherwise query window hierarchy
-            val targetPkg = when {
-                eventPkg != null && !isTransientOrSystemPackage(eventPkg) -> eventPkg
-                windowPkg != null && !isTransientOrSystemPackage(windowPkg) -> windowPkg
-                else -> null
-            }
-
-            if (targetPkg != null) {
-                _currentForegroundPackage.value = targetPkg
-                // Notify floating overlay directly for instant zero-latency appearance
-                FloatingOverlayManager.notifyForegroundPackageChanged(targetPkg)
-            }
+        val windowPkg = findTopInteractivePackage()
+        val eventPkg = event.packageName?.toString()?.takeUnless { isTransientOrSystemPackage(it) }
+        val targetPkg = windowPkg ?: if (eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) eventPkg else null
+        if (targetPkg != null && targetPkg != _currentForegroundPackage.value) {
+            _currentForegroundPackage.value = targetPkg
+            FloatingOverlayManager.notifyForegroundPackageChanged(targetPkg)
+        } else if (targetPkg == null && eventType == AccessibilityEvent.TYPE_WINDOWS_CHANGED) {
+            // Do not retain an old target after all usable windows disappear.
+            // A subsequent window transition will publish the next real package.
+            _currentForegroundPackage.value = null
         }
     }
 
     fun findTopInteractivePackage(): String? {
+        // Window list ordering is not a reliable foreground ordering. Prefer
+        // focused APPLICATION windows, then active APPLICATION windows, and
+        // finally the active root. Ignore overlays and input-method windows.
         val windowList = try { windows } catch (_: Exception) { null }
         if (!windowList.isNullOrEmpty()) {
-            for (win in windowList) {
-                if (win.isFocused || win.isActive) {
-                    val pkg = win.root?.packageName?.toString()
-                    if (pkg != null && !isTransientOrSystemPackage(pkg)) {
-                        return pkg
-                    }
-                }
+            val candidates = windowList.filter {
+                it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_APPLICATION
+            }.sortedWith(compareByDescending<android.view.accessibility.AccessibilityWindowInfo> {
+                it.isFocused
+            }.thenByDescending { it.isActive }.thenByDescending { it.layer })
+            for (win in candidates) {
+                if (!win.isFocused && !win.isActive) continue
+                val pkg = runCatching { win.root?.packageName?.toString() }.getOrNull()
+                if (pkg != null && !isTransientOrSystemPackage(pkg)) return pkg
             }
         }
         val rootPkg = try { rootInActiveWindow?.packageName?.toString() } catch (_: Exception) { null }
-        if (rootPkg != null && !isTransientOrSystemPackage(rootPkg)) {
-            return rootPkg
-        }
-        return null
+        return rootPkg?.takeUnless { isTransientOrSystemPackage(it) }
     }
 
     private fun isTransientOrSystemPackage(pkg: String): Boolean {
@@ -154,6 +150,7 @@ class CastixAccessibilityService : AccessibilityService() {
         super.onDestroy()
         instance = null
         _isServiceConnected.value = false
+        _currentForegroundPackage.value = null
         Log.d(TAG, "CastixAccessibilityService destroyed")
     }
 }

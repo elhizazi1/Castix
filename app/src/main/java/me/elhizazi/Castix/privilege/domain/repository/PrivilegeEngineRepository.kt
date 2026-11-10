@@ -21,7 +21,7 @@ import java.io.File
  * System diagnostic information for Android 17 runtime.
  */
 data class SystemDeviceInfo(
-    val androidVersion: String = "17 (Preview / API 36)",
+    val androidVersion: String = Build.VERSION.RELEASE,
     val apiLevel: Int = Build.VERSION.SDK_INT,
     val deviceModel: String = "${Build.MANUFACTURER.replaceFirstChar { it.uppercase() }} ${Build.MODEL}",
     val selinuxMode: String = "Enforcing",
@@ -49,7 +49,7 @@ class PrivilegeEngineRepository(
     )
 
     fun getEngine(type: EngineType): IPrivilegeEngine {
-        return engines[type] ?: accessibilityEngine
+        return requireNotNull(engines[type]) { "Unknown privilege engine: $type" }
     }
 
     fun getAllEngines(): List<IPrivilegeEngine> = engines.values.toList()
@@ -80,6 +80,7 @@ class PrivilegeEngineRepository(
      */
     suspend fun executeWithEngine(type: EngineType, command: String): ExecutionResult {
         val engine = getEngine(type)
+        if (type == EngineType.LSPATCH || type == EngineType.LSPOSED) return engine.executeCommand(command)
         return engine.executeCommand(command)
     }
 
@@ -119,7 +120,7 @@ class PrivilegeEngineRepository(
         }
 
         return SystemDeviceInfo(
-            androidVersion = if (Build.VERSION.SDK_INT >= 36) "17 (API 36)" else "${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})",
+            androidVersion = "${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})",
             apiLevel = Build.VERSION.SDK_INT,
             deviceModel = "${Build.MANUFACTURER.replaceFirstChar { it.uppercase() }} ${Build.MODEL}",
             selinuxMode = selinux,

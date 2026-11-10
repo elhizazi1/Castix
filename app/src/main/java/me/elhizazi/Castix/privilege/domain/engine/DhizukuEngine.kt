@@ -77,64 +77,25 @@ class DhizukuEngine : IPrivilegeEngine {
         }
     }
 
-    override suspend fun executeCommand(command: String): ExecutionResult = withContext(Dispatchers.IO) {
-        val startTime = SystemClock.elapsedRealtime()
-        val sanitizedCmd = command.trim()
+    // Dhizuku's DevicePolicyManager delegation is not a privileged shell.
+    // Running `sh -c` here used Castix's ordinary app UID and falsely implied
+    // Device Owner authority. Fail closed until real DPM binder calls exist.
+    private fun unsupported(command: String) = ExecutionResult(
+        command = command,
+        exitCode = 1,
+        stdout = "",
+        stderr = "Dhizuku does not provide a privileged shell. This operation requires an implemented, authorized DevicePolicyManager API call.",
+        executionTimeMs = 0L,
+        engineUsed = engineType,
+        isSuccess = false
+    )
 
-        try {
-            // Dhizuku translates commands into DevicePolicyManager (DPM) IPC transactions
-            val process = Runtime.getRuntime().exec(arrayOf("sh", "-c", sanitizedCmd))
-            val stdout = process.inputStream.bufferedReader().use { it.readText() }
-            val stderr = process.errorStream.bufferedReader().use { it.readText() }
-            val exitCode = process.waitFor()
-            val duration = SystemClock.elapsedRealtime() - startTime
-
-            val formattedStdout = if (stdout.isBlank() && exitCode == 0) {
-                "[Dhizuku DPM: Delegated Device Owner policy applied successfully on Android 17]"
-            } else {
-                stdout.trim()
-            }
-
-            ExecutionResult(
-                command = sanitizedCmd,
-                exitCode = exitCode,
-                stdout = formattedStdout,
-                stderr = stderr.trim(),
-                executionTimeMs = duration,
-                engineUsed = EngineType.DHIZUKU
-            )
-        } catch (e: Exception) {
-            val duration = SystemClock.elapsedRealtime() - startTime
-            ExecutionResult(
-                command = sanitizedCmd,
-                exitCode = -1,
-                stdout = "",
-                stderr = "Dhizuku Device Owner dispatch error: ${e.localizedMessage}",
-                executionTimeMs = duration,
-                engineUsed = EngineType.DHIZUKU
-            )
-        }
-    }
+    override suspend fun executeCommand(command: String): ExecutionResult = unsupported(command)
 
     override suspend fun executePlaybackTask(
         task: PlaybackOptimizationTask,
         targetPackage: String
-    ): ExecutionResult {
-        // Dhizuku implements Device Owner specific policy tasks
-        val dpmCmd = when (task) {
-            PlaybackOptimizationTask.BATTERY_WHITELIST ->
-                "cmd device_policy set-permission-grant-state $targetPackage android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS 1"
-            PlaybackOptimizationTask.STANDBY_BUCKET_ACTIVE ->
-                "cmd appops set $targetPackage RUN_IN_BACKGROUND 0 && am set-standby-bucket $targetPackage active"
-            PlaybackOptimizationTask.APP_OPS_BACKGROUND ->
-                "cmd device_policy set-permission-grant-state $targetPackage android.permission.WAKE_LOCK 1"
-            PlaybackOptimizationTask.PHANTOM_KILLER_DISABLE ->
-                "cmd device_policy set-user-restriction no_outgoing_beam 0"
-            PlaybackOptimizationTask.AUDIO_FOCUS_HIJACK ->
-                "cmd audio set-audio-mode normal"
-        }
-        return executeCommand(dpmCmd)
-    }
+    ): ExecutionResult = unsupported("dhizuku::${task.name} --pkg=$targetPackage")
 
     override suspend fun getHealth(context: Context): ServiceHealth = withContext(Dispatchers.IO) {
         val available = isAvailable(context)
@@ -145,10 +106,10 @@ class DhizukuEngine : IPrivilegeEngine {
                 ServiceHealth(
                     type = EngineType.DHIZUKU,
                     status = EngineHealthStatus.ACTIVE,
-                    message = "Dhizuku Device Owner delegated & ready",
+                    message = "Dhizuku permission granted; task dispatch unavailable",
                     version = "v2.8.2 (DO Component)",
-                    isUsable = true,
-                    details = "DevicePolicyManager proxy active for Android 17 policy enforcement."
+                    isUsable = false,
+                    details = "Dhizuku authorization detected, but Castix has no implemented DevicePolicyManager dispatch."
                 )
             }
             available && !permitted -> {

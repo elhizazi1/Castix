@@ -39,17 +39,13 @@ class LSPatchEngine : IPrivilegeEngine {
             true
         }.getOrDefault(false)
 
-        val xposedBridgeFound = runCatching {
-            Class.forName("de.robv.android.xposed.XposedBridge")
-            true
-        }.getOrDefault(false)
 
         // Check if installed or running in a sandboxed patched container
-        managerFound || loaderFound || xposedBridgeFound
+        managerFound || loaderFound
     }
 
     override suspend fun checkPermission(context: Context): Boolean = withContext(Dispatchers.IO) {
-        isModulePatchedActive
+        false // Manager installation does not prove a module is active in another app.
     }
 
     override suspend fun requestPermission(context: Context): Result<Boolean> = withContext(Dispatchers.Main) {
@@ -60,115 +56,48 @@ class LSPatchEngine : IPrivilegeEngine {
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 context.startActivity(intent)
             }
-            isModulePatchedActive
+            false // Opening the manager is not permission confirmation.
         }
     }
 
-    override suspend fun executeCommand(command: String): ExecutionResult = withContext(Dispatchers.Default) {
-        val startTime = SystemClock.elapsedRealtime()
-        val trimmed = command.trim()
+    // LSPatch is an external APK patching tool, not an in-process shell executor.
+    // Never report successful patching or injection without a verified integration.
+    private fun unsupported(command: String): ExecutionResult = ExecutionResult(
+        engineUsed = engineType,
+        command = command,
+        exitCode = 1,
+        stdout = "",
+        stderr = "LSPatch cannot execute this operation from Castix. Configure and verify the patched APK and module in LSPatch Manager; no hook was injected.",
+        isSuccess = false,
+        executionTimeMs = 0L
+    )
 
-        when {
-            trimmed.contains("patch_app", ignoreCase = true) -> {
-                ExecutionResult(
-                    engineUsed = engineType,
-                    command = command,
-                    exitCode = 0,
-                    stdout = "[LSPatch Rootless] Target application dex patched successfully.\nAudio focus interceptor embedded into application runtime.",
-                    stderr = "",
-                    isSuccess = true,
-                    executionTimeMs = SystemClock.elapsedRealtime() - startTime
-                )
-            }
-            trimmed.contains("inject_audio_hook", ignoreCase = true) || trimmed.contains("toggle_hook", ignoreCase = true) -> {
-                isModulePatchedActive = !isModulePatchedActive
-                ExecutionResult(
-                    engineUsed = engineType,
-                    command = command,
-                    exitCode = 0,
-                    stdout = "[LSPatch Rootless] In-Process AudioFocus Hook: ${if (isModulePatchedActive) "ACTIVATED" else "DEACTIVATED"}",
-                    stderr = "",
-                    isSuccess = true,
-                    executionTimeMs = SystemClock.elapsedRealtime() - startTime
-                )
-            }
-            trimmed.contains("status", ignoreCase = true) -> {
-                ExecutionResult(
-                    engineUsed = engineType,
-                    command = command,
-                    exitCode = 0,
-                    stdout = "[LSPatch Engine] Loader: Rootless Dex Loader v0.6+\nPatched Container: Active\nIn-Process Hooks: ${if (isModulePatchedActive) "1 Bound" else "Standby"}",
-                    stderr = "",
-                    isSuccess = true,
-                    executionTimeMs = SystemClock.elapsedRealtime() - startTime
-                )
-            }
-            else -> {
-                ExecutionResult(
-                    engineUsed = engineType,
-                    command = command,
-                    exitCode = 0,
-                    stdout = "[LSPatch Direct Dispatch]: $command\nStatus: Hook payload dispatched to sandboxed ART loader.",
-                    stderr = "",
-                    isSuccess = true,
-                    executionTimeMs = SystemClock.elapsedRealtime() - startTime
-                )
-            }
-        }
-    }
+    override suspend fun executeCommand(command: String): ExecutionResult = unsupported(command)
 
     override suspend fun executePlaybackTask(
         task: PlaybackOptimizationTask,
         targetPackage: String
-    ): ExecutionResult = withContext(Dispatchers.Default) {
-        val startTime = SystemClock.elapsedRealtime()
-        val stdout = when (task) {
-            PlaybackOptimizationTask.BATTERY_WHITELIST ->
-                "[LSPatch] Injected PowerManager.isIgnoringBatteryOptimizations() true spoof into $targetPackage."
-            PlaybackOptimizationTask.STANDBY_BUCKET_ACTIVE ->
-                "[LSPatch] Intercepted UsageStatsManager.getAppStandbyBucket() -> STANDBY_BUCKET_ACTIVE."
-            PlaybackOptimizationTask.AUDIO_FOCUS_HIJACK -> {
-                isModulePatchedActive = true
-                "[LSPatch] Hooked AudioManager.abandonAudioFocusRequest() to ignore loss transients."
-            }
-            PlaybackOptimizationTask.APP_OPS_BACKGROUND ->
-                "[LSPatch] In-process AppOps bypass injected for OP_RUN_IN_BACKGROUND."
-            PlaybackOptimizationTask.PHANTOM_KILLER_DISABLE ->
-                "[LSPatch] Injected persistent foreground dummy binder thread in app process."
-        }
-
-        ExecutionResult(
-            engineUsed = engineType,
-            command = "lspatch::invoke_task --task=${task.name.lowercase()} --pkg=$targetPackage",
-            exitCode = 0,
-            stdout = stdout,
-            stderr = "",
-            isSuccess = true,
-            executionTimeMs = SystemClock.elapsedRealtime() - startTime
-        )
-    }
+    ): ExecutionResult = unsupported("lspatch::${task.name} --pkg=$targetPackage")
 
     override suspend fun getHealth(context: Context): ServiceHealth = withContext(Dispatchers.IO) {
         val available = isAvailable(context)
-        val permGranted = checkPermission(context)
+        val permGranted = false
 
         val status = when {
-            isModulePatchedActive -> EngineHealthStatus.ACTIVE
-            permGranted -> EngineHealthStatus.AVAILABLE
-            available -> EngineHealthStatus.PERMISSION_REQUIRED
+            available -> EngineHealthStatus.INSTALLED_INACTIVE
             else -> EngineHealthStatus.NOT_INSTALLED
         }
 
-        val isActuallyUsable = isModulePatchedActive || permGranted
+        val isActuallyUsable = false
 
         ServiceHealth(
             type = engineType,
             status = status,
-            message = if (isModulePatchedActive) "موديول LSPatch نشط ومحقون" else if (available) "LSPatch متاح (بانتظار التهيئة)" else "LSPatch غير متوفر",
-            version = if (available) "0.6 (Rootless)" else null,
+            message = if (available) "مدير LSPatch مثبت؛ حالة ترقيع التطبيقات غير مؤكدة" else "LSPatch غير متوفر",
+            version = null,
             isUsable = isActuallyUsable,
             details = if (available) {
-                "LSPatch manager or patched container active. In-process ART hooks supported without root."
+                "Manager detected only. Castix cannot verify patched APKs or injected modules; automatic patching is not implemented."
             } else {
                 "LSPatch not detected. Install LSPatch manager or run within an LSPatch-patched APK."
             }

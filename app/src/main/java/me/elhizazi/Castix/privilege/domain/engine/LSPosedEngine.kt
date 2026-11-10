@@ -150,38 +150,22 @@ class LSPosedEngine : IPrivilegeEngine {
         // Manual UI toggles must never masquerade as real LSPosed activation.
     }
 
-    override suspend fun executeCommand(command: String): ExecutionResult = withContext(Dispatchers.IO) {
-        val startTime = SystemClock.elapsedRealtime()
-        val duration = 12L // Hook invocation is near-zero latency
+    private fun unsupported(command: String) = ExecutionResult(
+        command = command,
+        exitCode = 1,
+        stdout = "",
+        stderr = "LSPosed hooks cannot be dispatched by a shell command. A verified, scoped Xposed module implementation is required.",
+        executionTimeMs = 0L,
+        engineUsed = engineType,
+        isSuccess = false
+    )
 
-        ExecutionResult(
-            command = "lsposed::hook($command)",
-            exitCode = 0,
-            stdout = "[LSPosed Framework Hook: Intercepted in Android 17 ART Zygote space]\nTarget: $command\nHook Status: Hook active; AudioPolicy bypass injected.",
-            stderr = "",
-            executionTimeMs = duration,
-            engineUsed = EngineType.LSPOSED
-        )
-    }
+    override suspend fun executeCommand(command: String): ExecutionResult = unsupported(command)
 
     override suspend fun executePlaybackTask(
         task: PlaybackOptimizationTask,
         targetPackage: String
-    ): ExecutionResult {
-        val hookTarget = when (task) {
-            PlaybackOptimizationTask.AUDIO_FOCUS_HIJACK ->
-                "android.media.AudioManager#abandonAudioFocus(AudioFocusRequest)"
-            PlaybackOptimizationTask.BATTERY_WHITELIST ->
-                "com.android.server.DeviceIdleController#isPowerSaveWhitelistApp($targetPackage)"
-            PlaybackOptimizationTask.STANDBY_BUCKET_ACTIVE ->
-                "com.android.server.usage.AppStandbyController#getAppStandbyBucket($targetPackage)"
-            PlaybackOptimizationTask.APP_OPS_BACKGROUND ->
-                "com.android.server.appop.AppOpsService#checkOperation(OP_RUN_IN_BACKGROUND)"
-            PlaybackOptimizationTask.PHANTOM_KILLER_DISABLE ->
-                "com.android.server.am.PhantomProcessList#trimPhantomProcesses()"
-        }
-        return executeCommand("hookMethod: $hookTarget -> return constant success")
-    }
+    ): ExecutionResult = unsupported("lsposed::${task.name} --pkg=$targetPackage")
 
     override suspend fun getHealth(context: Context): ServiceHealth = withContext(Dispatchers.IO) {
         val active = isModuleActivatedInScope

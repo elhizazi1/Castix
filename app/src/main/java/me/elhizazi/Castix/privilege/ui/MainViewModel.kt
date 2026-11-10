@@ -813,19 +813,16 @@ class MainViewModel(
      * Toggle LSPosed supplementary hook state (allows live interactive simulation of Zygote hook).
      */
     fun toggleLSPosedModule(active: Boolean) {
-        appSettingsManager.setTaskEnforced(PlaybackOptimizationTask.AUDIO_FOCUS_HIJACK, active)
+        // UI preference is not evidence of a Zygote hook. Never persist it as
+        // an enforced playback optimization or announce successful injection.
         refreshEngineStatus()
         appendConsoleLog(
             ConsoleEntry(
                 engine = EngineType.LSPOSED,
-                command = "lsposed::toggle_hook --active=$active",
-                exitCode = 0,
-                output = if (active) {
-                    "LSPosed Hooking Activated: AudioFocus interception and phantom process killer hook bound in ART Zygote space."
-                } else {
-                    "LSPosed Hooking Deactivated."
-                },
-                durationMs = 8
+                command = "lsposed::request_hook --active=$active",
+                exitCode = 1,
+                output = "Configure the Castix module scope in LSPosed Manager. Castix cannot toggle runtime hooks directly.",
+                isError = true
             )
         )
     }

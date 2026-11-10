@@ -78,7 +78,7 @@ fun SimpleEngineSelectorCard(
     // This prevents Shizuku from remaining visible after switching to Root.
     val selectedEngineHealth = healthMap[selectedEngine]
     val selectedEngineIsActive = selectedEngineHealth?.status == EngineHealthStatus.ACTIVE
-    val hasActiveEngine = selectedEngineIsActive
+    val hasActiveEngine = healthMap.values.any { it.isUsable }
 
     Card(
         modifier = modifier
@@ -158,7 +158,7 @@ fun SimpleEngineSelectorCard(
                                 )
                         )
                         Text(
-                            text = if (hasActiveEngine) selectedEngine.shortName else AppStrings.get("status_none_active", lang),
+                            text = if (selectedEngineIsActive) selectedEngine.shortName else if (hasActiveEngine) healthMap.values.filter { it.isUsable }.joinToString(", ") { it.type.shortName } else AppStrings.get("status_none_active", lang),
                             style = MaterialTheme.typography.labelSmall,
                             fontWeight = FontWeight.Bold,
                             color = if (hasActiveEngine) NeonGreen else MaterialTheme.colorScheme.onSurfaceVariant

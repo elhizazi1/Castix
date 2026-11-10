@@ -56,7 +56,7 @@ class CastixXposedHook : IXposedHookLoadPackage {
             return
         }
 
-        Log.i(TAG, "[Castix] Successfully attached to target package: $pkg")
+        Log.i(TAG, "[Castix] Xposed entrypoint invoked in target package: $pkg")
 
         try {
             // Intercept AudioFocus loss to keep background audio playing
@@ -67,7 +67,7 @@ class CastixXposedHook : IXposedHookLoadPackage {
             }
 
             if (audioManagerClass != null) {
-                Log.d(TAG, "[Castix] AudioPolicy hook ready for $pkg")
+                Log.d(TAG, "[Castix] AudioManager class found in $pkg; no audio hook installed")
             }
         } catch (t: Throwable) {
             Log.e(TAG, "[Castix] Error applying hook to $pkg", t)
