@@ -98,7 +98,7 @@ dependencies {
   implementation(libs.okhttp)
   implementation(libs.retrofit)
 
-  implementation("io.github.iamr0s:Dhizuku-API:2.6.0")
+  implementation("io.github.iamr0s:Dhizuku-API:2.5.4")
 
   // Shizuku official API & Provider so Castix appears in Shizuku Manager
   implementation("dev.rikka.shizuku:api:13.1.5")
