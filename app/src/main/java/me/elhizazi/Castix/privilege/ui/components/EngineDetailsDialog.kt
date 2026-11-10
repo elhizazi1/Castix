@@ -78,6 +78,10 @@ fun EngineDetailsDialog(
     val context = LocalContext.current
     val appSettings by AppSettingsManager.getInstance(context).settings.collectAsState()
     val isAr = appSettings.language == "ar"
+    // Dhizuku authorization is distinct from availability of implemented DPM tasks.
+    val authorizedDhizuku = engine == EngineType.DHIZUKU &&
+        health?.status == me.elhizazi.Castix.privilege.domain.model.EngineHealthStatus.ACTIVE
+    val statusReady = health?.isUsable == true || authorizedDhizuku
 
     val engineIcon = when (engine) {
         EngineType.SHIZUKU -> Icons.Default.Security
@@ -177,17 +181,19 @@ fun EngineDetailsDialog(
                             )
                             Surface(
                                 shape = RoundedCornerShape(6.dp),
-                                color = if (health?.isUsable == true) NeonGreen.copy(alpha = 0.15f) else MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.5f)
+                                color = if (statusReady) NeonGreen.copy(alpha = 0.15f) else MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.5f)
                             ) {
                                 Text(
-                                    text = if (health?.isUsable == true) {
-                                        AppStrings.text("engine_ready")
+                                    text = if (statusReady) {
+                                        if (authorizedDhizuku) {
+                                            if (isAr) "مصرّح به · عمليات السياسات غير متاحة بعد" else "Authorized · policy operations unavailable"
+                                        } else AppStrings.text("engine_ready")
                                     } else {
                                         AppStrings.text("engine_not_ready")
                                     },
                                     style = MaterialTheme.typography.labelSmall,
                                     fontWeight = FontWeight.Bold,
-                                    color = if (health?.isUsable == true) NeonGreen else MaterialTheme.colorScheme.error,
+                                    color = if (statusReady) NeonGreen else MaterialTheme.colorScheme.error,
                                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                                 )
                             }
@@ -290,7 +296,7 @@ fun EngineDetailsDialog(
                     }
                 }
 
-                // LSPosed Manager Info Banner (No open button as requested)
+                // LSPosed manager access; launching a manager is not proof of hook activation.
                 if (engine == EngineType.LSPOSED) {
                     Card(
                         shape = RoundedCornerShape(14.dp),
@@ -323,6 +329,10 @@ fun EngineDetailsDialog(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 lineHeight = 18.sp
                             )
+                            Spacer(modifier = Modifier.height(10.dp))
+                            Button(onClick = onRequestPermission, modifier = Modifier.fillMaxWidth()) {
+                                Text(if (isAr) "فتح مدير LSPosed / Vector" else "Open LSPosed / Vector manager")
+                            }
                         }
                     }
                 }
