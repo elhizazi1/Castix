@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.provider.Settings
 import android.os.SystemClock
 import me.elhizazi.Castix.privilege.domain.model.EngineHealthStatus
 import me.elhizazi.Castix.privilege.domain.model.EngineType
@@ -131,24 +132,44 @@ class LSPosedEngine : IPrivilegeEngine {
                 }.isSuccess) return@runCatching true
             }
 
-            // 2. Try LSPosed manager action, including managers without a launcher icon.
+            // 2. Explicitly resolve launcher activities belonging to the installed fork.
+            // Some forks have no conventional getLaunchIntentForPackage result.
+            for (pkg in LSPOSED_PACKAGES) {
+                if (!isPackageInstalled(pm, pkg)) continue
+                val query = Intent(Intent.ACTION_MAIN).apply {
+                    addCategory(Intent.CATEGORY_LAUNCHER)
+                    setPackage(pkg)
+                }
+                @Suppress("DEPRECATION")
+                val activities = pm.queryIntentActivities(query, 0)
+                for (activity in activities) {
+                    val component = android.content.ComponentName(
+                        activity.activityInfo.packageName, activity.activityInfo.name
+                    )
+                    val explicit = Intent(Intent.ACTION_MAIN).apply {
+                        addCategory(Intent.CATEGORY_LAUNCHER)
+                        setComponent(component)
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    }
+                    if (runCatching { context.startActivity(explicit) }.isSuccess) return@runCatching true
+                }
+            }
+
+            // 3. The legacy manager action may be exposed by some forks.
             val actionIntent = Intent(LSPOSED_ACTION_MANAGER).apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
-            if (actionIntent.resolveActivity(pm) != null && runCatching {
-                context.startActivity(actionIntent)
-            }.isSuccess) return@runCatching true
+            if (runCatching { context.startActivity(actionIntent) }.isSuccess) return@runCatching true
 
-            // 3. Try main launcher intent for each known package
+            // 4. Last resort: open the installed manager's system details rather
+            // than silently doing nothing. This does not claim to activate hooks.
             for (pkg in LSPOSED_PACKAGES) {
-                val mainIntent = Intent(Intent.ACTION_MAIN).apply {
-                    setPackage(pkg)
-                    addCategory(Intent.CATEGORY_LAUNCHER)
+                if (!isPackageInstalled(pm, pkg)) continue
+                val details = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                    data = Uri.parse("package:$pkg")
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 }
-                if (mainIntent.resolveActivity(pm) != null && runCatching {
-                    context.startActivity(mainIntent)
-                }.isSuccess) return@runCatching true
+                if (runCatching { context.startActivity(details) }.isSuccess) return@runCatching true
             }
 
             // 4. If no LSPosed manager was found, explain cleanly without any dialer code or browser redirection

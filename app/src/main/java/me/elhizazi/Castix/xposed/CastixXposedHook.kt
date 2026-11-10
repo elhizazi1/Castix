@@ -2,6 +2,8 @@ package me.elhizazi.Castix.xposed
 
 import android.util.Log
 import de.robv.android.xposed.IXposedHookLoadPackage
+import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 import me.elhizazi.Castix.privilege.domain.engine.LSPosedEngine
 import me.elhizazi.Castix.privilege.domain.engine.LSPatchEngine
@@ -59,18 +61,20 @@ class CastixXposedHook : IXposedHookLoadPackage {
         Log.i(TAG, "[Castix] Xposed entrypoint invoked in target package: $pkg")
 
         try {
-            // Intercept AudioFocus loss to keep background audio playing
-            val audioManagerClass = try {
-                lpparam.classLoader.loadClass("android.media.AudioManager")
-            } catch (_: Throwable) {
-                null
-            }
-
-            if (audioManagerClass != null) {
-                Log.d(TAG, "[Castix] AudioManager class found in $pkg; no audio hook installed")
-            }
+            XposedHelpers.findAndHookMethod(
+                android.media.AudioManager::class.java, "requestAudioFocus",
+                android.media.AudioManager.OnAudioFocusChangeListener::class.java,
+                Int::class.javaPrimitiveType,
+                Int::class.javaPrimitiveType,
+                object : XC_MethodHook() {
+                    override fun afterHookedMethod(param: MethodHookParam) {
+                        Log.i(TAG, "Audio focus request observed in $pkg; result=${param.getResult()}")
+                    }
+                }
+            )
+            Log.i(TAG, "AudioManager requestAudioFocus hook registered for $pkg")
         } catch (t: Throwable) {
-            Log.e(TAG, "[Castix] Error applying hook to $pkg", t)
+            Log.e(TAG, "Audio focus hook registration failed in $pkg", t)
         }
     }
 }

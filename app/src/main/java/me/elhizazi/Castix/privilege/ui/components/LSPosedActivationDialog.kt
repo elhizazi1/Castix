@@ -39,6 +39,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
+import android.widget.Toast
+import me.elhizazi.Castix.privilege.domain.engine.LSPosedEngine
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -62,6 +66,7 @@ fun LSPosedActivationDialog(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val context = LocalContext.current
     val detectedManager = LSPosedEngine.getDetectedManagerName(context)
+    val coroutineScope = rememberCoroutineScope()
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -224,6 +229,24 @@ fun LSPosedActivationDialog(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
+                Button(
+                    onClick = {
+                        if (onOpenManagerApp != null) onOpenManagerApp()
+                        else coroutineScope.launch {
+                            val result = LSPosedEngine().requestPermission(context)
+                            if (result.isFailure) Toast.makeText(
+                                context, result.exceptionOrNull()?.message ?: "LSPosed manager unavailable",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth().height(48.dp)
+                ) {
+                    Icon(Icons.Default.Launch, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("فتح مدير LSPosed / Vector")
+                }
+
                 // Confirm activated button
                 Button(
                     onClick = onConfirmActivated,

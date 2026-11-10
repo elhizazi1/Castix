@@ -1,0 +1,5 @@
+- Removed Xposed API source stubs from APK; compileOnly local API stub jar.
+- Registered a real Xposed callback on AudioManager.requestAudioFocus in scoped processes.
+- This callback observes audio focus, not a background-playback bypass.
+- LSPosed module activation cross-process verification is still unimplemented.
+- No device or Gradle build validation performed.
