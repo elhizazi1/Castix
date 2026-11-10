@@ -413,7 +413,9 @@ class MainViewModel(
                 it.copy(
                     engineHealthMap = healthMap,
                     isRefreshing = false,
-                    isLSPosedHookActive = healthMap[EngineType.LSPOSED]?.isUsable == true,
+                    isLSPosedHookActive = (healthMap[EngineType.LSPOSED]?.isUsable == true ||
+                            healthMap[EngineType.LSPATCH]?.isUsable == true) &&
+                            me.elhizazi.Castix.xposed.HookConfig.isAudioFocusHookEnabled(getApplication()),
                     selectedEngine = targetEngine
                 )
             }
@@ -572,7 +574,10 @@ class MainViewModel(
         _uiState.update {
             it.copy(
                 showLSPosedDialog = false,
-                notificationMessage = "تم طلب إعادة فحص حالة موديول LSPosed."
+                notificationMessage = if (me.elhizazi.Castix.privilege.domain.engine.LSPosedEngine.isModuleActivatedInScope)
+                    "تم تأكيد تحميل الموديول داخل Castix ✓"
+                else
+                    "لم يُرصد التحميل بعد. تأكد من تحديد Castix في نطاق الموديول، ثم أوقف Castix بالقوة وافتحه من جديد."
             )
         }
         appendConsoleLog(
@@ -816,16 +821,30 @@ class MainViewModel(
      * Toggle LSPosed supplementary hook state (allows live interactive simulation of Zygote hook).
      */
     fun toggleLSPosedModule(active: Boolean) {
-        // UI preference is not evidence of a Zygote hook. Never persist it as
-        // an enforced playback optimization or announce successful injection.
+        val app = getApplication<Application>()
+        val live = me.elhizazi.Castix.privilege.domain.engine.LSPosedEngine.isModuleActivatedInScope ||
+            me.elhizazi.Castix.privilege.domain.engine.LSPatchEngine.isModulePatchedActive ||
+            _uiState.value.engineHealthMap[EngineType.LSPATCH]?.isUsable == true
+        if (!live) {
+            // Nothing to toggle until a framework has really loaded the module.
+            _uiState.update {
+                it.copy(
+                    showLSPosedDialog = true,
+                    notificationMessage = "الموديول غير محمَّل بعد: فعّله في LSPosed (مع Castix في النطاق) ثم أعد تشغيل Castix."
+                )
+            }
+            refreshEngineStatus()
+            return
+        }
+        runCatching { me.elhizazi.Castix.xposed.HookConfig.setAudioFocusHookEnabled(app, active) }
         refreshEngineStatus()
         appendConsoleLog(
             ConsoleEntry(
                 engine = EngineType.LSPOSED,
-                command = "lsposed::request_hook --active=$active",
-                exitCode = 1,
-                output = "Configure the Castix module scope in LSPosed Manager. Castix cannot toggle runtime hooks directly.",
-                isError = true
+                command = "lsposed::audio_focus_hook --enabled=$active",
+                exitCode = 0,
+                output = "Saved. Applies the next time the target app is launched (restart it).",
+                isError = false
             )
         )
     }

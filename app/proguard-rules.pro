@@ -9,6 +9,10 @@
 -keep class * implements de.robv.android.xposed.IXposedHookLoadPackage { *; }
 -keep class * implements de.robv.android.xposed.IXposedHookZygoteInit { *; }
 -keep class me.elhizazi.Castix.xposed.CastixXposedHook { *; }
+# The hook replaces these methods at runtime by NAME: they must not be renamed or inlined.
+-keep class me.elhizazi.Castix.xposed.XposedStatus { *; }
+-keepclassmembers class me.elhizazi.Castix.xposed.XposedStatus { public static *** *(...); }
+-keep class me.elhizazi.Castix.xposed.HookConfig { *; }
 
 # Xposed entry-point metadata and callback signatures must remain discoverable.
 -keepattributes *Annotation*,AnnotationDefault,InnerClasses,EnclosingMethod,Signature
@@ -48,7 +52,7 @@
 -keepattributes AnnotationDefault,Signature,InnerClasses,EnclosingMethod
 
 # Classes explicitly located by name at runtime in Castix.
--keep class org.lsposed.lspatch.Loader { *; }
+-dontwarn org.lsposed.lspatch.**
 
 # -----------------------------------------------------------------------------
 # Moshi / Retrofit

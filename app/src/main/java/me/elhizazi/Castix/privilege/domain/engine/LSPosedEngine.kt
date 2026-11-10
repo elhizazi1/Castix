@@ -114,9 +114,12 @@ class LSPosedEngine : IPrivilegeEngine {
             }.getOrDefault(false)
         }
 
-        // Module active flag hooked by Xposed module at runtime
-        @Volatile
-        var isModuleActivatedInScope: Boolean = false
+        /**
+         * TRUE only if the framework hooked XposedStatus.isModuleActive() inside THIS process.
+         * (A static flag set from the module would be written to a different ClassLoader copy.)
+         */
+        val isModuleActivatedInScope: Boolean
+            get() = runCatching { me.elhizazi.Castix.xposed.XposedStatus.isModuleActive() }.getOrDefault(false)
     }
 
     override suspend fun isAvailable(context: Context): Boolean = withContext(Dispatchers.IO) {
@@ -248,7 +251,7 @@ class LSPosedEngine : IPrivilegeEngine {
                     message = "$managerName متاح (بانتظار التفعيل)",
                     version = managerVersion,
                     isUsable = false,
-                    details = "تم اكتشاف مدير LSPosed، لكن لا يوجد إثبات بأن Castix قد حُمّل داخل عملية التطبيق. تحقق من تفعيل الوحدة والنطاق وأعد تشغيل التطبيق المستهدف."
+                    details = "تم اكتشاف مدير LSPosed، لكن Castix لم يُحمَّل بعد داخل عمليته. في LSPosed: فعّل وحدة Castix وحدّد Castix نفسه ضمن النطاق (Scope) مع التطبيقات المستهدفة، ثم أوقف Castix بالقوة (Force stop) وافتحه من جديد."
                 )
             }
             else -> {
