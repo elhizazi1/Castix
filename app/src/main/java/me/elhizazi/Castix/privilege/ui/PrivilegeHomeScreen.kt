@@ -418,7 +418,8 @@ fun PrivilegeHomeScreen(
     // Modal Bottom Sheet for LSPosed / Xposed Module Activation Workflow
     if (uiState.showLSPosedDialog) {
         LSPosedActivationDialog(
-            isModuleActive = uiState.isLSPosedHookActive,
+            // Same real signal as the framework row (not mixed with LSPatch / user toggle).
+            isModuleActive = me.elhizazi.Castix.privilege.domain.engine.LSPosedEngine.isModuleActivatedInScope,
             onDismiss = { viewModel.setShowLSPosedDialog(false) },
             onRefreshStatus = {
                 viewModel.refreshEngineStatus()
