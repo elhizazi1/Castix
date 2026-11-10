@@ -15,14 +15,14 @@ file("src/main/java/de/robv").takeIf { it.exists() }?.let { stale ->
 
 android {
   namespace = "me.elhizazi.Castix"
-  compileSdk { version = release(36) { minorApiLevel = 1 } }
+  compileSdk = 37
 
   defaultConfig {
     applicationId = "me.elhizazi.Castix"
     minSdk = 26
-    targetSdk = 36
-    versionCode = 1
-    versionName = "1.0"
+    targetSdk = 37
+    versionCode = 2
+    versionName = "1.1.0"
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }

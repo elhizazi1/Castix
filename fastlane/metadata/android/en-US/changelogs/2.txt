@@ -1,0 +1,11 @@
+Castix 1.1.0 — Major Feature & Stability Update.
+
+• Expanded AMOLED customization with 12 new luxury clock designs.
+• Enhanced black-screen mode with decorative styles and improved visual customization.
+• Improved LSPosed integration and Xposed module compatibility.
+• Refined Root, Shizuku, Dhizuku, and Accessibility engine management.
+• Redesigned terminal and system commands with engine-aware execution and clearer diagnostics.
+• Improved permission and engine status synchronization without restarting the app.
+• Fixed startup crashes and improved overall reliability.
+• Added Android 17 (API 37) targeting.
+• General UI refinements, bug fixes, and stability improvements.
