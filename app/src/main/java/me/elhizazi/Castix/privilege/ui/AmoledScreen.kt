@@ -69,6 +69,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -221,7 +222,17 @@ fun AmoledScreen(
                             val timeNow = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
                             val dateNow = SimpleDateFormat("EEE, d MMM", Locale.getDefault()).format(Date())
 
-                            when (appSettings.clockStyle) {
+                            if (appSettings.clockStyle in luxuryClockStyles) {
+                                AndroidView(factory = { ctx -> android.widget.TextView(ctx).apply {
+                                    gravity = android.view.Gravity.CENTER
+                                    textSize = 40f
+                                    setTextColor(android.graphics.Color.WHITE)
+                                    setPadding(45, 52, 45, 52)
+                                } }, update = {
+                                    it.text = timeNow
+                                    it.background = LuxuryClockDrawable(appSettings.clockStyle)
+                                })
+                            } else when (appSettings.clockStyle) {
                                 ClockStyle.LARGE_GLOW -> {
                                     Text(
                                         text = timeNow,
@@ -462,7 +473,19 @@ fun AmoledScreen(
                         ClockStyle.LARGE_CENTER to "clock_style_large_center",
                         ClockStyle.STACKED to "clock_style_stacked",
                         ClockStyle.MONO_LINE to "clock_style_mono_line",
-                        ClockStyle.DATA_DASHBOARD to "clock_style_dashboard"
+                        ClockStyle.DATA_DASHBOARD to "clock_style_dashboard",
+                        ClockStyle.NEON_ORBIT to "clock_lux_0",
+                        ClockStyle.GOLDEN_ARCH to "clock_lux_1",
+                        ClockStyle.SAKURA_MOON to "clock_lux_2",
+                        ClockStyle.CHRONOGRAPH to "clock_lux_3",
+                        ClockStyle.CYBER_HUD to "clock_lux_4",
+                        ClockStyle.LUMINOUS_BUTTERFLY to "clock_lux_5",
+                        ClockStyle.EARTHRISE to "clock_lux_6",
+                        ClockStyle.MOONLIT_MOUNTAINS to "clock_lux_7",
+                        ClockStyle.NEON_DRAGON to "clock_lux_8",
+                        ClockStyle.ROYAL_MANDALA to "clock_lux_9",
+                        ClockStyle.AUDIO_AURA to "clock_lux_10",
+                        ClockStyle.CRYSTAL_LOTUS to "clock_lux_11"
                     )
                     val selectedIndex = clockOptions.indexOfFirst { it.first == appSettings.clockStyle }.coerceAtLeast(0)
 
@@ -998,6 +1021,16 @@ private fun AmoledTemplateMiniPreview(
     ) {
         Box(modifier = Modifier.scale(scaleFactor), contentAlignment = Alignment.Center) {
             when (style) {
+                ClockStyle.NEON_ORBIT, ClockStyle.GOLDEN_ARCH, ClockStyle.SAKURA_MOON, ClockStyle.CHRONOGRAPH, ClockStyle.CYBER_HUD, ClockStyle.LUMINOUS_BUTTERFLY, ClockStyle.EARTHRISE, ClockStyle.MOONLIT_MOUNTAINS, ClockStyle.NEON_DRAGON, ClockStyle.ROYAL_MANDALA, ClockStyle.AUDIO_AURA, ClockStyle.CRYSTAL_LOTUS -> AndroidView(
+                    factory = { ctx -> android.widget.TextView(ctx).apply {
+                        gravity = android.view.Gravity.CENTER
+                        textSize = 25f
+                        setTextColor(android.graphics.Color.WHITE)
+                        setPadding(30, 28, 30, 28)
+                        background = LuxuryClockDrawable(style)
+                    } },
+                    update = { it.text = time; it.background = LuxuryClockDrawable(style) }
+                )
                 ClockStyle.DIGITAL_CLEAN ->
                     Text(time, fontSize = 30.sp, fontWeight = FontWeight.SemiBold, letterSpacing = (-1.2).sp, color = Color.White)
                 ClockStyle.MINIMAL_COMPACT ->

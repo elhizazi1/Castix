@@ -31,6 +31,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import me.elhizazi.Castix.R
 import me.elhizazi.Castix.privilege.ui.AppSettingsManager
 import me.elhizazi.Castix.privilege.ui.ClockStyle
+import me.elhizazi.Castix.privilege.ui.LuxuryClockDrawable
+import me.elhizazi.Castix.privilege.ui.luxuryClockStyles
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -309,7 +311,15 @@ class BlackScreenOverlayManager(private val context: Context) {
             infoContainerView = infoLayout
 
             val timeView = TextView(context).apply {
+                if (clockStyle in luxuryClockStyles) {
+                    textSize = 42f
+                    setTextColor(Color.WHITE)
+                    typeface = android.graphics.Typeface.create("sans-serif-light", android.graphics.Typeface.NORMAL)
+                    setPadding(58, 68, 58, 68)
+                    background = LuxuryClockDrawable(clockStyle)
+                }
                 when (clockStyle) {
+                    ClockStyle.NEON_ORBIT, ClockStyle.GOLDEN_ARCH, ClockStyle.SAKURA_MOON, ClockStyle.CHRONOGRAPH, ClockStyle.CYBER_HUD, ClockStyle.LUMINOUS_BUTTERFLY, ClockStyle.EARTHRISE, ClockStyle.MOONLIT_MOUNTAINS, ClockStyle.NEON_DRAGON, ClockStyle.ROYAL_MANDALA, ClockStyle.AUDIO_AURA, ClockStyle.CRYSTAL_LOTUS -> Unit
                     ClockStyle.LARGE_GLOW -> {
                         textSize = 54f
                         setTextColor(accentColor)

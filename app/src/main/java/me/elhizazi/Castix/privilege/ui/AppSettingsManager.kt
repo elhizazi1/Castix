@@ -27,7 +27,8 @@ enum class ClockStyle {
     LARGE_CENTER,     // Oversized centered digits
     STACKED,          // Hours and minutes stacked vertically
     MONO_LINE,        // Monospaced compact line
-    DATA_DASHBOARD   // Clock with a compact data dashboard
+    DATA_DASHBOARD,  // Clock with a compact data dashboard
+    NEON_ORBIT, GOLDEN_ARCH, SAKURA_MOON, CHRONOGRAPH, CYBER_HUD, LUMINOUS_BUTTERFLY, EARTHRISE, MOONLIT_MOUNTAINS, NEON_DRAGON, ROYAL_MANDALA, AUDIO_AURA, CRYSTAL_LOTUS
 }
 
 data class AppAppSettings(
