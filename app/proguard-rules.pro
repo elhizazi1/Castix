@@ -96,3 +96,7 @@
 
 # Dhizuku API binder and permission callback
 -keep class com.rosan.dhizuku.** { *; }
+
+# Dhizuku accesses the Android framework hidden ActivityThread class at runtime.
+# It is not present in the public Android SDK supplied to R8.
+-dontwarn android.app.ActivityThread
