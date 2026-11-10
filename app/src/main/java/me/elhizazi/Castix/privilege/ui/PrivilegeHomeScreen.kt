@@ -420,7 +420,10 @@ fun PrivilegeHomeScreen(
         LSPosedActivationDialog(
             isModuleActive = uiState.isLSPosedHookActive,
             onDismiss = { viewModel.setShowLSPosedDialog(false) },
-            onRefreshStatus = { viewModel.refreshEngineStatus() },
+            onRefreshStatus = {
+                viewModel.refreshEngineStatus()
+                viewModel.requestPermissionForEngine(EngineType.LSPOSED, context, true)
+            },
             onConfirmActivated = { viewModel.confirmLSPosedModuleActivated(context) }
         )
     }

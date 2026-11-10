@@ -444,8 +444,17 @@ class MainViewModel(
         }
 
         if (engine == EngineType.LSPOSED) {
-            // Show LSPosed in-app activation dialog (no dialer codes)
-            _uiState.update { it.copy(showLSPosedDialog = true) }
+            if (forcePromptOnly) {
+                viewModelScope.launch {
+                    val result = repository.getEngine(EngineType.LSPOSED).requestPermission(context)
+                    result.onFailure { error ->
+                        _uiState.update { it.copy(notificationMessage = error.localizedMessage ?: "LSPosed Manager unavailable") }
+                    }
+                    refreshEngineStatus()
+                }
+            } else {
+                _uiState.update { it.copy(showLSPosedDialog = true) }
+            }
             return
         }
 
@@ -507,13 +516,6 @@ class MainViewModel(
             return
         }
 
-        if (engine == EngineType.DHIZUKU) {
-            val isPermitted = _uiState.value.engineHealthMap[EngineType.DHIZUKU]?.isUsable == true
-            if (!isPermitted && !forcePromptOnly) {
-                showEngineDetails(EngineType.DHIZUKU)
-                return
-            }
-        }
 
         if (engine == EngineType.LSPATCH) {
             val isPermitted = _uiState.value.engineHealthMap[EngineType.LSPATCH]?.isUsable == true
@@ -526,14 +528,15 @@ class MainViewModel(
         viewModelScope.launch {
             val eng = repository.getEngine(engine)
             val result = eng.requestPermission(context)
-            result.onSuccess {
+            result.onSuccess { granted ->
                 refreshEngineStatus()
+                _uiState.update { it.copy(notificationMessage = if (granted) "${engine.displayName}: permission granted" else "${engine.displayName}: permission not granted") }
                 appendConsoleLog(
                     ConsoleEntry(
                         engine = engine,
                         command = "request_permission --engine=${engine.name.lowercase()}",
-                        exitCode = 0,
-                        output = "Permission workflow dispatched for ${engine.displayName}.",
+                        exitCode = if (granted) 0 else 1,
+                        output = if (granted) "Permission granted for ${engine.displayName}." else "Permission denied or request timed out for ${engine.displayName}.",
                         durationMs = 15
                     )
                 )

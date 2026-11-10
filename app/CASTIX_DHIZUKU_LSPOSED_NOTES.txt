@@ -1,0 +1,4 @@
+Dhizuku: official API permission request and callback, not an Intent.
+LSPosed: rescan opens manager when resolvable; runtime hooks and policy actions remain unimplemented.
+Do not claim that Dhizuku can execute privileged shell commands.
+Build and device tests not performed.

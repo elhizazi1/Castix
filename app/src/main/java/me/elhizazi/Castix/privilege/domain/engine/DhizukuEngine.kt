@@ -4,7 +4,11 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.SystemClock
+import com.rosan.dhizuku.api.Dhizuku
+import com.rosan.dhizuku.api.DhizukuRequestPermissionListener
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withTimeoutOrNull
+import kotlin.coroutines.resume
 import me.elhizazi.Castix.privilege.domain.model.EngineHealthStatus
 import me.elhizazi.Castix.privilege.domain.model.EngineType
 import me.elhizazi.Castix.privilege.domain.model.ExecutionResult
@@ -50,30 +54,39 @@ class DhizukuEngine : IPrivilegeEngine {
         isPackageInstalled || isProviderResolved
     }
 
+    private fun initialize(context: Context): Boolean = runCatching {
+        Dhizuku.init(context.applicationContext)
+    }.getOrDefault(false)
+
     override suspend fun checkPermission(context: Context): Boolean = withContext(Dispatchers.IO) {
-        val hasPermission = context.checkSelfPermission(DHIZUKU_PERMISSION) == PackageManager.PERMISSION_GRANTED
-        hasPermission
+        if (!initialize(context)) return@withContext false
+        runCatching { Dhizuku.isPermissionGranted() }.getOrDefault(false)
     }
 
     override suspend fun requestPermission(context: Context): Result<Boolean> = withContext(Dispatchers.Main) {
-        runCatching {
-            val intent = Intent(ACTION_REQUEST_PERMISSION).apply {
-                setPackage(DHIZUKU_PACKAGE)
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
-            if (intent.resolveActivity(context.packageManager) != null) {
-                context.startActivity(intent)
-                true
-            } else {
-                val launchIntent = context.packageManager.getLaunchIntentForPackage(DHIZUKU_PACKAGE)
-                if (launchIntent != null) {
-                    launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    context.startActivity(launchIntent)
-                    true
-                } else {
-                    throw IllegalStateException("تطبيق Dhizuku غير مثبت على هذا الجهاز.")
+        if (!initialize(context)) {
+            return@withContext Result.failure(IllegalStateException("Dhizuku service unavailable. Start Dhizuku first."))
+        }
+        if (runCatching { Dhizuku.isPermissionGranted() }.getOrDefault(false)) {
+            return@withContext Result.success(true)
+        }
+        try {
+            val granted = withTimeoutOrNull(60000L) {
+                suspendCancellableCoroutine<Boolean> { continuation ->
+                    try {
+                        Dhizuku.requestPermission(object : DhizukuRequestPermissionListener() {
+                            override fun onRequestPermission(grantResult: Int) {
+                                if (continuation.isActive) continuation.resume(grantResult == PackageManager.PERMISSION_GRANTED)
+                            }
+                        })
+                    } catch (error: Throwable) {
+                        if (continuation.isActive) continuation.cancel(error)
+                    }
                 }
-            }
+            } ?: false
+            Result.success(granted)
+        } catch (error: Throwable) {
+            Result.failure(error)
         }
     }
 
@@ -106,7 +119,7 @@ class DhizukuEngine : IPrivilegeEngine {
                 ServiceHealth(
                     type = EngineType.DHIZUKU,
                     status = EngineHealthStatus.ACTIVE,
-                    message = "Dhizuku permission granted; task dispatch unavailable",
+                    message = "Dhizuku API permission granted; policy tasks not implemented",
                     version = "v2.8.2 (DO Component)",
                     isUsable = false,
                     details = "Dhizuku authorization detected, but Castix has no implemented DevicePolicyManager dispatch."

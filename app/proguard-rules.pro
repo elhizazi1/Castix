@@ -93,3 +93,6 @@
 -keepclasseswithmembers,includedescriptorclasses class * {
     native <methods>;
 }
+
+# Dhizuku API binder and permission callback
+-keep class com.rosan.dhizuku.** { *; }

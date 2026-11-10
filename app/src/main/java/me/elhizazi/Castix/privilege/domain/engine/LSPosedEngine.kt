@@ -119,7 +119,7 @@ class LSPosedEngine : IPrivilegeEngine {
                 }
             }
 
-            // 2. Try launching via explicit ACTION_MANAGER intent
+            // 2. Try LSPosed manager action, including managers without a launcher icon.
             val actionIntent = Intent(LSPOSED_ACTION_MANAGER).apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
