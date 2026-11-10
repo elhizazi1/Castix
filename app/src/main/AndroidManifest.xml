@@ -34,7 +34,7 @@
         <package android:name="io.github.a13e300.ksu" />
         <package android:name="com.rifsxd.ksunext" />
         <package android:name="me.bmax.apatch" />
-        <provider android:authorities="moe.shizuku.privileged.api.provider" />
+        <provider android:authorities="moe.shizuku.privileged.api.provider" tools:replace="android:authorities" />
         <provider android:authorities="af.shizuku.plus.api.provider" />
         <provider android:authorities="com.hamondev.shevery.provider" />
         <intent>
