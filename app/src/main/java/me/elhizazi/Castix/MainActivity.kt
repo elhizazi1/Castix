@@ -3,6 +3,8 @@ package me.elhizazi.Castix
 import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivityResultRegistryOwner
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
@@ -44,8 +46,10 @@ class MainActivity : ComponentActivity() {
     }
 
     setContent {
-      MyApplicationTheme {
-        PrivilegeHomeScreen(viewModel = viewModel)
+      CompositionLocalProvider(LocalActivityResultRegistryOwner provides this@MainActivity) {
+        MyApplicationTheme {
+          PrivilegeHomeScreen(viewModel = viewModel)
+        }
       }
     }
   }

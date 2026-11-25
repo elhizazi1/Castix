@@ -1,7 +1,6 @@
 package me.elhizazi.Castix.service
 
 import me.elhizazi.Castix.privilege.ui.AppStrings
-import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
@@ -40,8 +39,8 @@ import java.util.Locale
 /**
  * High-performance AMOLED Pitch Black Screen Overlay (#000000).
  *
- * Distinct clock and system stats shown clearly for 10 seconds upon trigger
- * or tap, then smoothly dims to save battery and prevent burn-in.
+ * Clock and system stats are visible for five seconds after activation
+ * or a single tap, then hidden on a pure black background.
  * Double tap anywhere unlocks immediately.
  */
 class BlackScreenOverlayManager(private val context: Context) {
@@ -65,10 +64,12 @@ class BlackScreenOverlayManager(private val context: Context) {
 
     private val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as? WindowManager
     private var blackView: View? = null
+    private var themeView: me.elhizazi.Castix.themes.ThemeWebView? = null
     private val mainHandler = Handler(Looper.getMainLooper())
     private var clockUpdateRunnable: Runnable? = null
     private var dimRunnable: Runnable? = null
     private var infoContainerView: View? = null
+    private var hintContainerView: View? = null
 
     // Preferences
     var doubleTapToWake: Boolean = true
@@ -153,9 +154,7 @@ class BlackScreenOverlayManager(private val context: Context) {
                 y = 0
                 width = WindowManager.LayoutParams.MATCH_PARENT
                 height = WindowManager.LayoutParams.MATCH_PARENT
-                if (zeroBrightness) {
-                    screenBrightness = 0.005f // Minimum possible backlight on Android
-                }
+                screenBrightness = WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                     layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
                 } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -172,13 +171,25 @@ class BlackScreenOverlayManager(private val context: Context) {
             _isBlackScreenActive.value = true
 
             vibrateShort()
-            scheduleDimAfterTenSeconds()
+            scheduleAutoDim()
             Log.d(TAG, "Pure AMOLED Black Screen Overlay activated")
         } catch (e: Exception) {
             Log.e(TAG, "Error displaying black screen", e)
             _isBlackScreenActive.value = false
+            clockUpdateRunnable?.let { mainHandler.removeCallbacks(it) }
+            clockUpdateRunnable = null
+            dimRunnable?.let { mainHandler.removeCallbacks(it) }
+            dimRunnable = null
+            releaseTheme()
             blackView = null
+            infoContainerView = null
+            hintContainerView = null
         }
+    }
+
+    private fun releaseTheme() {
+        themeView?.let { view -> (view.parent as? android.view.ViewGroup)?.removeView(view); view.destroy() }
+        themeView = null
     }
 
     fun hideBlackScreen() {
@@ -194,8 +205,10 @@ class BlackScreenOverlayManager(private val context: Context) {
                 Log.e(TAG, "Error removing black screen view", e)
             }
         }
+        releaseTheme()
         blackView = null
         infoContainerView = null
+        hintContainerView = null
         _isBlackScreenActive.value = false
         vibrateShort()
         Log.d(TAG, "AMOLED Black Screen dismissed")
@@ -217,35 +230,35 @@ class BlackScreenOverlayManager(private val context: Context) {
         }
     }
 
-    private fun scheduleDimAfterTenSeconds() {
-        dimRunnable?.let { mainHandler.removeCallbacks(it) }
-        // Start prominent (alpha = 0.9f)
-        infoContainerView?.alpha = 0.9f
-
-        dimRunnable = Runnable {
-            // Smoothly animate dimming down to very subtle ambient level (0.15f) after 10 seconds
-            val current = infoContainerView ?: return@Runnable
-            val anim = ValueAnimator.ofFloat(current.alpha, 0.15f)
-            anim.duration = 1000
-            anim.addUpdateListener { va ->
-                current.alpha = va.animatedValue as Float
-            }
-            anim.start()
+    private fun setAmbientVisible(visible: Boolean) {
+        val root = blackView ?: return
+        infoContainerView?.visibility = if (visible) View.VISIBLE else View.INVISIBLE
+        hintContainerView?.visibility = if (visible) View.VISIBLE else View.INVISIBLE
+        themeView?.setAmbientActive(visible)
+        val params = root.layoutParams as? WindowManager.LayoutParams ?: return
+        val brightness = if (!visible && zeroBrightness) 0.005f else WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
+        if (params.screenBrightness != brightness) {
+            params.screenBrightness = brightness
+            runCatching { windowManager?.updateViewLayout(root, params) }
+                .onFailure { Log.w(TAG, "Unable to update overlay brightness", it) }
         }
-        mainHandler.postDelayed(dimRunnable!!, 10000)
     }
 
-    private fun wakeInfoToProminent() {
+    private fun scheduleAutoDim() {
         dimRunnable?.let { mainHandler.removeCallbacks(it) }
-        val current = infoContainerView ?: return
-        val anim = ValueAnimator.ofFloat(current.alpha, 0.9f)
-        anim.duration = 250
-        anim.addUpdateListener { va ->
-            current.alpha = va.animatedValue as Float
+        setAmbientVisible(true)
+        dimRunnable = null
+        val settings = AppSettingsManager.getInstance(context).settings.value
+        if (!settings.ambientAutoDim) return
+        val task = Runnable {
+            dimRunnable = null
+            setAmbientVisible(false)
         }
-        anim.start()
-        scheduleDimAfterTenSeconds()
+        dimRunnable = task
+        mainHandler.postDelayed(task, settings.ambientDurationSeconds * 1000L)
     }
+
+    private fun wakeInfoToProminent() = scheduleAutoDim()
 
     private fun applyImmersiveFullscreen(view: View) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -273,7 +286,9 @@ class BlackScreenOverlayManager(private val context: Context) {
     }
 
     private fun buildBlackScreenView(): FrameLayout {
-        val root = FrameLayout(context).apply {
+        val root = object : FrameLayout(context) {
+            override fun onInterceptTouchEvent(ev: MotionEvent): Boolean = true
+        }.apply {
             setBackgroundColor(Color.BLACK)
             isClickable = true
             isFocusable = true
@@ -301,12 +316,37 @@ class BlackScreenOverlayManager(private val context: Context) {
 
         if (showClock) {
             val globalSettings = AppSettingsManager.getInstance(context).settings.value
+            val custom = me.elhizazi.Castix.themes.ThemeStore(context).find(globalSettings.customThemeId)
+            if (custom != null) {
+                val web = me.elhizazi.Castix.themes.ThemeWebView(context, custom) {
+                    mainHandler.post {
+                        AppSettingsManager.getInstance(context).selectCustomTheme(null)
+                        if (_isBlackScreenActive.value) { hideBlackScreen(); showBlackScreen() }
+                    }
+                }
+                web.sessionStart = sessionStartTimeMillis
+                web.foreground = FloatingOverlayManager.getActiveForegroundPackage()
+                themeView = web
+                infoContainerView = web
+                root.addView(web, FrameLayout.LayoutParams(-1, -1))
+                if (burnInProtection) {
+                    clockUpdateRunnable = object : Runnable {
+                        override fun run() {
+                            if (!_isBlackScreenActive.value) return
+                            web.translationX = (-8..8).random().toFloat()
+                            web.translationY = (-8..8).random().toFloat()
+                            mainHandler.postDelayed(this, 60000)
+                        }
+                    }
+                    mainHandler.postDelayed(clockUpdateRunnable!!, 60000)
+                }
+            } else {
             val accentColor = Color.parseColor(globalSettings.accentColorHex)
 
             val infoLayout = LinearLayout(context).apply {
                 orientation = LinearLayout.VERTICAL
                 gravity = Gravity.CENTER_HORIZONTAL
-                alpha = 0.9f // Prominently visible for 10 seconds!
+                alpha = 1f
             }
             infoContainerView = infoLayout
 
@@ -442,6 +482,8 @@ class BlackScreenOverlayManager(private val context: Context) {
             infoLayout.addView(playbackTimerView)
             infoLayout.addView(appBadgeView)
             infoLayout.addView(inscriptionView)
+            val notificationView = TextView(context).apply { textSize = 12f; setTextColor(Color.LTGRAY); gravity = Gravity.CENTER }
+            infoLayout.addView(notificationView)
 
             val infoParams = FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.WRAP_CONTENT,
@@ -468,6 +510,9 @@ class BlackScreenOverlayManager(private val context: Context) {
 
             fun updateClock() {
                 val now = Date()
+                val count = if (globalSettings.showNotifications) me.elhizazi.Castix.themes.ThemeNotifications.count else null
+                notificationView.visibility = if (count != null && count > 0) View.VISIBLE else View.GONE
+                notificationView.text = if (count != null) "◉ $count" else ""
                 when (clockStyle) {
                     ClockStyle.ANALOG_MINIMAL -> {
                         timeView.text = "● ${timeFormat.format(now)} ◯"
@@ -512,6 +557,9 @@ class BlackScreenOverlayManager(private val context: Context) {
                     }
                 }
 
+                if (clockStyle in listOf(ClockStyle.DIGITAL_CLEAN, ClockStyle.MINIMAL_COMPACT, ClockStyle.ANALOG_MINIMAL)) {
+                    me.elhizazi.Castix.themes.NativeClock.render(timeView, clockStyle, timeFormat.format(now), accentColor, 40f)
+                }
                 if (showDate) {
                     dateView.text = dateFormat.format(now)
                     dateView.visibility = View.VISIBLE
@@ -589,6 +637,8 @@ class BlackScreenOverlayManager(private val context: Context) {
             mainHandler.postDelayed(clockUpdateRunnable!!, 60000)
         }
 
+        }
+
         // Bottom hint: Double tap to wake
         val hintLayout = LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL
@@ -616,6 +666,7 @@ class BlackScreenOverlayManager(private val context: Context) {
             bottomMargin = 90
         }
         root.addView(hintLayout, hintParams)
+        hintContainerView = hintLayout
 
         return root
     }
@@ -626,7 +677,7 @@ class BlackScreenOverlayManager(private val context: Context) {
             override fun onDown(e: MotionEvent): Boolean = true
 
             override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
-                // Single tap wakes up the clock prominently for 10 seconds!
+                // Single tap reveals the design for another five seconds.
                 wakeInfoToProminent()
                 return true
             }

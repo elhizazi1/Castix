@@ -55,6 +55,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MyApplication">
 
+        <service android:name=".themes.ThemeNotifications" android:exported="true" android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE" android:label="Castix AMOLED">
+            <intent-filter><action android:name="android.service.notification.NotificationListenerService" /></intent-filter>
+        </service>
         <!-- LSPosed / LSPatch Framework Integration -->
         <meta-data
             android:name="xposedmodule"

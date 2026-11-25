@@ -214,6 +214,12 @@ fun AmoledScreen(
                             .padding(16.dp),
                         contentAlignment = Alignment.Center
                     ) {
+                        val customTheme = remember(appSettings.customThemeId) { me.elhizazi.Castix.themes.ThemeStore(context).find(appSettings.customThemeId) }
+                        if (customTheme != null) {
+                            androidx.compose.runtime.key(customTheme.id) {
+                                AndroidView(factory = { me.elhizazi.Castix.themes.ThemeWebView(it, customTheme, preview = true) }, modifier = Modifier.fillMaxSize(), update = { view -> appSettings.let { view.publishData() } }, onReset = null, onRelease = { it.destroy() })
+                            }
+                        } else {
                         // Ambient clock and active widgets
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
@@ -222,7 +228,9 @@ fun AmoledScreen(
                             val timeNow = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
                             val dateNow = SimpleDateFormat("EEE, d MMM", Locale.getDefault()).format(Date())
 
-                            if (appSettings.clockStyle in luxuryClockStyles) {
+                            if (appSettings.clockStyle in listOf(ClockStyle.DIGITAL_CLEAN, ClockStyle.MINIMAL_COMPACT, ClockStyle.ANALOG_MINIMAL)) {
+                                AndroidView(factory = { android.widget.TextView(it) }, update = { me.elhizazi.Castix.themes.NativeClock.render(it, appSettings.clockStyle, timeNow, appSettings.accentColorHex.let { hex -> android.graphics.Color.parseColor(hex) }, 34f) })
+                            } else if (appSettings.clockStyle in luxuryClockStyles) {
                                 AndroidView(factory = { ctx -> android.widget.TextView(ctx).apply {
                                     gravity = android.view.Gravity.CENTER
                                     textSize = 40f
@@ -316,6 +324,10 @@ fun AmoledScreen(
                                 }
                             }
 
+                            if (appSettings.showNotifications) {
+                                val count = me.elhizazi.Castix.themes.ThemeNotifications.count
+                                if (count != null && count > 0) Text("◉ $count", color = Color.LightGray, fontSize = 12.sp)
+                            }
                             if (appSettings.showDateOnBlackScreen) {
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
@@ -328,7 +340,7 @@ fun AmoledScreen(
                             if (appSettings.showBatteryOnBlackScreen) {
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
-                                    text = AppStrings.text("amoled_preview_battery"),
+                                    text = ((context.getSystemService(android.content.Context.BATTERY_SERVICE) as android.os.BatteryManager).getIntProperty(android.os.BatteryManager.BATTERY_PROPERTY_CAPACITY)).let { if (it in 0..100) "$it%" else "" },
                                     fontSize = 11.sp,
                                     color = Color(0xFF4ADE80),
                                     fontWeight = FontWeight.Medium
@@ -371,6 +383,7 @@ fun AmoledScreen(
                             }
                         }
 
+                        }
                         // Bottom double tap hint
                         Box(
                             modifier = Modifier
@@ -413,6 +426,7 @@ fun AmoledScreen(
                 }
             }
         }
+
 
         // 2. Clock Styles & Design Card
         item {
@@ -464,28 +478,7 @@ fun AmoledScreen(
                     val clockOptions = listOf(
                         ClockStyle.DIGITAL_CLEAN to "clock_style_digital",
                         ClockStyle.MINIMAL_COMPACT to "clock_style_minimal",
-                        ClockStyle.LARGE_GLOW to "clock_style_glow",
-                        ClockStyle.ANALOG_MINIMAL to "clock_style_analog",
-                        ClockStyle.RETRO_FLIP to "clock_style_retro",
-                        ClockStyle.TEXT_WORD to "clock_style_text_word",
-                        ClockStyle.PIXEL_AIRY to "clock_style_pixel_airy",
-                        ClockStyle.MATERIAL_EXPRESSIVE to "clock_style_material_expressive",
-                        ClockStyle.LARGE_CENTER to "clock_style_large_center",
-                        ClockStyle.STACKED to "clock_style_stacked",
-                        ClockStyle.MONO_LINE to "clock_style_mono_line",
-                        ClockStyle.DATA_DASHBOARD to "clock_style_dashboard",
-                        ClockStyle.NEON_ORBIT to "clock_lux_0",
-                        ClockStyle.GOLDEN_ARCH to "clock_lux_1",
-                        ClockStyle.SAKURA_MOON to "clock_lux_2",
-                        ClockStyle.CHRONOGRAPH to "clock_lux_3",
-                        ClockStyle.CYBER_HUD to "clock_lux_4",
-                        ClockStyle.LUMINOUS_BUTTERFLY to "clock_lux_5",
-                        ClockStyle.EARTHRISE to "clock_lux_6",
-                        ClockStyle.MOONLIT_MOUNTAINS to "clock_lux_7",
-                        ClockStyle.NEON_DRAGON to "clock_lux_8",
-                        ClockStyle.ROYAL_MANDALA to "clock_lux_9",
-                        ClockStyle.AUDIO_AURA to "clock_lux_10",
-                        ClockStyle.CRYSTAL_LOTUS to "clock_lux_11"
+                        ClockStyle.ANALOG_MINIMAL to "clock_style_analog"
                     )
                     val selectedIndex = clockOptions.indexOfFirst { it.first == appSettings.clockStyle }.coerceAtLeast(0)
 
@@ -497,7 +490,7 @@ fun AmoledScreen(
                         ) {
                             items(clockOptions.size) { index ->
                                 val (style, nameKey) = clockOptions[index]
-                                val isSelected = appSettings.clockStyle == style
+                                val isSelected = appSettings.customThemeId == null && appSettings.clockStyle == style
                                 Surface(
                                     shape = RoundedCornerShape(20.dp),
                                     color = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.12f) else Color.Black,
@@ -547,6 +540,8 @@ fun AmoledScreen(
                         )
 
                         Spacer(modifier = Modifier.height(6.dp))
+
+                        me.elhizazi.Castix.themes.ThemePanel(settingsManager, appSettings)
 
                         // Professional per-style tuning: these values are persisted and also
                         // applied by the real AMOLED overlay, not only to the preview.
@@ -709,6 +704,20 @@ fun AmoledScreen(
                         color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
                     )
 
+                    AmoledSwitchRow(
+                        icon = Icons.Default.Widgets,
+                        title = AppStrings.get("cas_notifications", lang),
+                        description = AppStrings.get("cas_notification_access", lang),
+                        checked = appSettings.showNotifications,
+                        onCheckedChange = { settingsManager.updateShowNotifications(it) }
+                    )
+                    if (appSettings.showNotifications) {
+                        me.elhizazi.Castix.themes.ThemeAction(Icons.Default.Security, AppStrings.get("cas_notification_access", lang)) {
+                            runCatching { context.startActivity(android.content.Intent(android.provider.Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)) }
+                        }
+                    }
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
+
                     // Burn-in pixel shifting protection
                     AmoledSwitchRow(
                         icon = Icons.Default.Shield,
@@ -718,6 +727,19 @@ fun AmoledScreen(
                         onCheckedChange = { settingsManager.updateBurnInProtection(it) }
                     )
 
+                    HorizontalDivider(
+                        modifier = Modifier.padding(vertical = 12.dp),
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
+                    )
+
+                    AmoledSwitchRow(
+                        icon = Icons.Default.BrightnessLow,
+                        title = AppStrings.get("ambient_auto_dim", lang),
+                        description = AppStrings.get("ambient_auto_dim_desc", lang),
+                        checked = appSettings.ambientAutoDim,
+                        onCheckedChange = settingsManager::updateAmbientAutoDim
+                    )
+                    AmbientDurationRow(appSettings, lang, settingsManager::updateAmbientDuration)
                     HorizontalDivider(
                         modifier = Modifier.padding(vertical = 12.dp),
                         color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
@@ -996,6 +1018,7 @@ fun AmoledScreen(
                 }
             }
         }
+        item { me.elhizazi.Castix.themes.ThemeCommunity(appSettings) }
     }
 }
 
@@ -1031,14 +1054,9 @@ private fun AmoledTemplateMiniPreview(
                     } },
                     update = { it.text = time; it.background = LuxuryClockDrawable(style) }
                 )
-                ClockStyle.DIGITAL_CLEAN ->
-                    Text(time, fontSize = 30.sp, fontWeight = FontWeight.SemiBold, letterSpacing = (-1.2).sp, color = Color.White)
-                ClockStyle.MINIMAL_COMPACT ->
-                    Text(time, fontSize = 23.sp, fontWeight = FontWeight.Medium, letterSpacing = (-0.8).sp, color = Color.White)
-                ClockStyle.LARGE_GLOW ->
-                    Text(time, fontSize = 38.sp, fontWeight = FontWeight.ExtraBold, letterSpacing = (-2).sp, color = accentColor)
-                ClockStyle.ANALOG_MINIMAL ->
-                    Text("◷  $time", fontSize = 24.sp, fontFamily = FontFamily.Monospace, color = Color.White)
+                ClockStyle.DIGITAL_CLEAN, ClockStyle.MINIMAL_COMPACT, ClockStyle.ANALOG_MINIMAL ->
+                    AndroidView(factory = { android.widget.TextView(it) }, update = { me.elhizazi.Castix.themes.NativeClock.render(it, style, time, android.graphics.Color.parseColor("#14B8A6"), 22f) })
+                ClockStyle.LARGE_GLOW -> Text(time, fontSize = 38.sp, color = accentColor)
                 ClockStyle.RETRO_FLIP ->
                     Text("$hour : $minute", fontSize = 24.sp, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, color = Color.White)
                 ClockStyle.TEXT_WORD ->

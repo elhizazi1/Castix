@@ -1,30 +1,26 @@
 name: Build Castix Android
 
 on:
-  push:
-    branches:
-      - main
-      - master
-    tags:
-      - 'v*'
-  pull_request:
-    branches:
-      - main
-      - master
   workflow_dispatch:
     inputs:
-      build_release:
-        description: 'Build signed Release APK + AAB'
+      build_type:
+        description: 'Select Android build output'
         required: true
-        default: false
-        type: boolean
+        default: debug
+        type: choice
+        options:
+          - debug
+          - release
+          - aab
+          - all
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   build-debug:
     name: Build Castix Debug APK
+    if: inputs.build_type == 'debug' || inputs.build_type == 'all'
     runs-on: ubuntu-latest
     timeout-minutes: 25
 
@@ -75,7 +71,7 @@ jobs:
 
   build-release:
     name: Build Castix Release APK + AAB
-    if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && inputs.build_release == true)
+    if: inputs.build_type == 'release' || inputs.build_type == 'aab' || inputs.build_type == 'all'
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
@@ -124,14 +120,21 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build Release APK and AAB
+      - name: Build selected Release outputs
         env:
           KEYSTORE_PATH: ${{ github.workspace }}/my-upload-key.jks
           STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
           GRADLE_OPTS: -Xmx3g
+          BUILD_TYPE: ${{ inputs.build_type }}
         run: |
-          ./gradlew :app:assembleRelease :app:bundleRelease --no-daemon -x test
+          case "$BUILD_TYPE" in
+            release) tasks=(:app:assembleRelease) ;;
+            aab) tasks=(:app:bundleRelease) ;;
+            all) tasks=(:app:assembleRelease :app:bundleRelease) ;;
+            *) exit 1 ;;
+          esac
+          ./gradlew "${tasks[@]}" --no-daemon -x test
 
       - name: Upload Release APK and AAB as Artifacts
         uses: actions/upload-artifact@v4
@@ -142,15 +145,6 @@ jobs:
             app/build/outputs/bundle/release/*.aab
           retention-days: 30
           if-no-files-found: error
-
-      - name: Create GitHub Release
-        if: startsWith(github.ref, 'refs/tags/v')
-        uses: softprops/action-gh-release@v2
-        with:
-          generate_release_notes: true
-          files: |
-            app/build/outputs/apk/release/*.apk
-            app/build/outputs/bundle/release/*.aab
 
       - name: Remove Release Keystore
         if: always()

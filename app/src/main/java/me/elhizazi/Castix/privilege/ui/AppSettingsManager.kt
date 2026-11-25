@@ -31,11 +31,14 @@ enum class ClockStyle {
     NEON_ORBIT, GOLDEN_ARCH, SAKURA_MOON, CHRONOGRAPH, CYBER_HUD, LUMINOUS_BUTTERFLY, EARTHRISE, MOONLIT_MOUNTAINS, NEON_DRAGON, ROYAL_MANDALA, AUDIO_AURA, CRYSTAL_LOTUS
 }
 
+val ambientDurationOptions = listOf(3, 5, 10, 15, 30, 60, 120)
+
 data class AppAppSettings(
     val themeMode: AppThemeMode = AppThemeMode.SYSTEM,
     val language: String = "auto", // follows the device language; unsupported languages fall back to English
     val accentColorHex: String = "#14B8A6", // Castix Teal default
     val dynamicSystemColor: Boolean = false,
+    val customThemeId: String? = null,
     val clockStyle: ClockStyle = ClockStyle.DIGITAL_CLEAN,
     val clockScalePercent: Int = 100,
     val clockVerticalOffsetDp: Int = 0,
@@ -45,11 +48,14 @@ data class AppAppSettings(
     val showDateOnBlackScreen: Boolean = true,
     val burnInProtection: Boolean = true,
     val showPlaybackTimer: Boolean = true,
+    val showNotifications: Boolean = false,
     val customInscription: String = "",
     val floatingButtonSizeDp: Int = 54, // 36dp to 76dp
     val floatingButtonAlphaPercent: Int = 90, // 20% to 100%
     val floatingHapticFeedback: Boolean = true,
-    val uiScalePercent: Int = 100 // 80% to 120%
+    val uiScalePercent: Int = 100, // 80% to 120%
+    val ambientAutoDim: Boolean = true,
+    val ambientDurationSeconds: Int = 5
 )
 
 class AppSettingsManager private constructor(private val context: Context) {
@@ -102,7 +108,8 @@ class AppSettingsManager private constructor(private val context: Context) {
             language = lang,
             accentColorHex = hex,
             dynamicSystemColor = dynamic,
-            clockStyle = clockStyle,
+            customThemeId = prefs.getString("custom_theme_id", null),
+            clockStyle = clockStyle.takeIf { it in listOf(ClockStyle.DIGITAL_CLEAN, ClockStyle.MINIMAL_COMPACT, ClockStyle.ANALOG_MINIMAL) } ?: ClockStyle.DIGITAL_CLEAN,
             clockScalePercent = clockScale.coerceIn(75, 140),
             clockVerticalOffsetDp = clockOffset.coerceIn(-80, 80),
             clockSpacingPercent = clockSpacing.coerceIn(60, 150),
@@ -111,10 +118,13 @@ class AppSettingsManager private constructor(private val context: Context) {
             showDateOnBlackScreen = showDate,
             burnInProtection = burnIn,
             showPlaybackTimer = showTimer,
+            showNotifications = prefs.getBoolean("show_notifications", false),
             customInscription = inscription,
             floatingButtonSizeDp = buttonSize,
             floatingButtonAlphaPercent = buttonAlpha,
             floatingHapticFeedback = floatingHaptic,
+            ambientAutoDim = prefs.getBoolean("ambient_auto_dim", true),
+            ambientDurationSeconds = prefs.getInt("ambient_duration_seconds", 5).takeIf { it in ambientDurationOptions } ?: 5,
             uiScalePercent = uiScale
         )
     }
@@ -154,8 +164,13 @@ class AppSettingsManager private constructor(private val context: Context) {
     }
 
     fun updateClockStyle(style: ClockStyle) {
-        prefs.edit().putString("clock_style", style.name).apply()
-        _settings.update { it.copy(clockStyle = style) }
+        prefs.edit().putString("clock_style", style.name).remove("custom_theme_id").apply()
+        _settings.update { it.copy(clockStyle = style, customThemeId = null) }
+    }
+
+    fun selectCustomTheme(id: String?) {
+        prefs.edit().putString("custom_theme_id", id).apply()
+        _settings.update { it.copy(customThemeId = id) }
     }
 
     fun updateClockScale(percent: Int) {
@@ -191,9 +206,25 @@ class AppSettingsManager private constructor(private val context: Context) {
         _settings.update { it.copy(showDateOnBlackScreen = show) }
     }
 
+    fun updateAmbientAutoDim(enabled: Boolean) {
+        prefs.edit().putBoolean("ambient_auto_dim", enabled).apply()
+        _settings.update { it.copy(ambientAutoDim = enabled) }
+    }
+
+    fun updateAmbientDuration(seconds: Int) {
+        if (seconds !in ambientDurationOptions) return
+        prefs.edit().putInt("ambient_duration_seconds", seconds).apply()
+        _settings.update { it.copy(ambientDurationSeconds = seconds) }
+    }
+
     fun updateBurnInProtection(enabled: Boolean) {
         prefs.edit().putBoolean("burn_in_protection", enabled).apply()
         _settings.update { it.copy(burnInProtection = enabled) }
+    }
+
+    fun updateShowNotifications(show: Boolean) {
+        prefs.edit().putBoolean("show_notifications", show).apply()
+        _settings.update { it.copy(showNotifications = show) }
     }
 
     fun updateShowPlaybackTimer(show: Boolean) {
