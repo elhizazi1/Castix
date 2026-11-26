@@ -1,7 +1,7 @@
 <div align="center">
 
 <a href="https://castix.elhizazi.me/">
-  <img src="fastlane/metadata/android/en-US/images/icon.png" alt="Castix app icon" width="112" />
+  <img src="fastlane/metadata/android/en-US/images/img_castix_emblem.png" alt="Castix app icon" width="112" />
 </a>
 
 # Castix
@@ -132,7 +132,7 @@ Castix is provided without warranty. Availability and behavior of privilege back
 ---
 
 <div align="center">
-<img src="fastlane/metadata/android/en-US/images/icon.png" width="72" alt="Castix icon" />
+<img src="fastlane/metadata/android/en-US/images/img_castix_emblem.png" width="72" alt="Castix icon" />
 
 **Castix · Open source · Built for Android**
 
