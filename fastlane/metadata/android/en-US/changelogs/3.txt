@@ -1,0 +1,6 @@
+Castix 1.2.0
+
+• Discover AMOLED themes through the new More Themes menu.
+• Access the Telegram theme store, official channel and community.
+• Adjustable interface scale (80–120%), with a 90% default and reset option.
+• Improved interface scaling while preserving AMOLED clock customization.

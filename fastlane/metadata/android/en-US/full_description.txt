@@ -9,6 +9,10 @@ Features:
 • Quick Settings support for black-screen mode.
 • Multilingual interface, including Arabic, English, Chinese, Japanese, French, Spanish, Portuguese, German, Italian, Russian, and Turkish.
 
+• Import and share AMOLED theme files (.cas).
+• Discover community themes through the More Themes menu, with access to the Telegram Mini App, official channel and community.
+• Adjustable interface scale from 80% to 120%, with a 90% default.
+
 Castix does not bundle Shizuku, Dhizuku, LSPosed, LSPatch, or a root solution. Features that use these backends require the corresponding service or environment to be installed and configured on the device.
 
 License: GNU General Public License v3.0 or later.
