@@ -1,7 +1,7 @@
 <div align="center">
 
 <a href="https://castix.elhizazi.me/">
-  <img src="fastlane/metadata/android/en-US/images/img_castix_emblem.png" alt="Castix app icon" width="112" />
+  <img src="fastlane/metadata/android/en-US/images/img_castix_logo.png" alt="Castix app icon" width="112" />
 </a>
 
 # Castix
