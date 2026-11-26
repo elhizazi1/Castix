@@ -71,6 +71,15 @@ object AppStrings {
     }
 
     val en = mapOf(
+        "cas_more" to "More Themes",
+        "cas_community_title" to "Castix Community",
+        "cas_community_desc" to "Discover new AMOLED themes, download community creations and share your own designs on Telegram.",
+        "cas_store" to "Explore themes",
+        "cas_store_desc" to "Castix Mini App theme store",
+        "cas_official_channel" to "Official channel",
+        "cas_channel_desc" to "New themes, news and updates",
+        "cas_group_desc" to "Discussion, sharing, suggestions and support",
+        "cas_link_error" to "Unable to open link",
         "cas_title" to "Community themes",
         "cas_channel" to "Download themes on Telegram",
         "cas_discussion" to "Community discussion (channel)",
@@ -526,6 +535,15 @@ object AppStrings {
     )
 
     val ar = mapOf(
+        "cas_more" to "المزيد من التصاميم",
+        "cas_community_title" to "مجتمع Castix",
+        "cas_community_desc" to "اكتشف تصاميم AMOLED الجديدة، وحمّل إبداعات المجتمع، وشارك تصاميمك الخاصة عبر تلجرام.",
+        "cas_store" to "استكشاف التصاميم",
+        "cas_store_desc" to "متجر تصاميم Castix Mini App",
+        "cas_official_channel" to "القناة الرسمية",
+        "cas_channel_desc" to "أحدث التصاميم والأخبار والتحديثات",
+        "cas_group_desc" to "النقاش والمشاركة والاقتراحات والدعم",
+        "cas_link_error" to "تعذر فتح الرابط",
         "cas_title" to "تصاميم المجتمع",
         "cas_channel" to "تنزيل التصاميم من تلجرام",
         "cas_discussion" to "مجموعة النقاش المرتبطة بالقناة",

@@ -106,22 +106,3 @@ internal fun ThemeAction(icon: ImageVector, title: String, enabled: Boolean = tr
     }
 }
 
-@Composable
-internal fun ThemeCommunity(settings: AppAppSettings) {
-    val context = LocalContext.current
-    fun label(key: String) = AppStrings.get(key, settings.language)
-    val open = { runCatching { context.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, Uri.parse("https://t.me/Castix_cas")).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)) }; Unit }
-    Card(shape = RoundedCornerShape(24.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f)), modifier = Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(20.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Surface(shape = CircleShape, color = MaterialTheme.colorScheme.primaryContainer, modifier = Modifier.size(42.dp)) { Box(contentAlignment = Alignment.Center) { Icon(Icons.Default.Layers, null, tint = MaterialTheme.colorScheme.primary) } }
-                Spacer(Modifier.width(14.dp))
-                Text(label("cas_title"), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-            }
-            Spacer(Modifier.height(10.dp))
-            ThemeAction(Icons.Default.KeyboardArrowDown, label("cas_channel"), action = open)
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
-            ThemeAction(Icons.Default.Send, label("cas_discussion"), action = open)
-        }
-    }
-}

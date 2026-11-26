@@ -21,6 +21,15 @@ internal object AppStringsSecondary {
         ) + AppStringsEuropean.maps
 
     val zh = mapOf(
+        "cas_more" to "更多主题",
+        "cas_community_title" to "Castix 社区",
+        "cas_community_desc" to "在 Telegram 发现新的 AMOLED 主题、下载社区作品并分享自己的设计。",
+        "cas_store" to "探索主题",
+        "cas_store_desc" to "Castix Mini App 主题商店",
+        "cas_official_channel" to "官方频道",
+        "cas_channel_desc" to "最新主题、新闻和更新",
+        "cas_group_desc" to "讨论、分享、建议和支持",
+        "cas_link_error" to "无法打开链接",
         "nav_home" to "首页",
         "nav_amoled" to "AMOLED",
         "nav_engines" to "引擎",
@@ -435,6 +444,15 @@ internal object AppStringsSecondary {
     )
 
     val ja = mapOf(
+        "cas_more" to "その他のテーマ",
+        "cas_community_title" to "Castix コミュニティ",
+        "cas_community_desc" to "Telegram で新しい AMOLED テーマを見つけ、作品をダウンロードし、自分のデザインを共有しましょう。",
+        "cas_store" to "テーマを探す",
+        "cas_store_desc" to "Castix Mini App テーマストア",
+        "cas_official_channel" to "公式チャンネル",
+        "cas_channel_desc" to "新しいテーマ、ニュース、更新情報",
+        "cas_group_desc" to "交流、共有、提案、サポート",
+        "cas_link_error" to "リンクを開けません",
         "nav_home" to "ホーム",
         "nav_amoled" to "AMOLED",
         "nav_engines" to "エンジン",

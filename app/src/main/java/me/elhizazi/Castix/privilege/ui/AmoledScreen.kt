@@ -542,6 +542,7 @@ fun AmoledScreen(
                         Spacer(modifier = Modifier.height(6.dp))
 
                         me.elhizazi.Castix.themes.ThemePanel(settingsManager, appSettings)
+                        me.elhizazi.Castix.themes.ThemeCommunity(appSettings)
 
                         // Professional per-style tuning: these values are persisted and also
                         // applied by the real AMOLED overlay, not only to the preview.
@@ -1018,7 +1019,6 @@ fun AmoledScreen(
                 }
             }
         }
-        item { me.elhizazi.Castix.themes.ThemeCommunity(appSettings) }
     }
 }
 

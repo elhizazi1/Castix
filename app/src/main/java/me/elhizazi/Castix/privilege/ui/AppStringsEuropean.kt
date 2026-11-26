@@ -24,6 +24,15 @@ internal object AppStringsEuropean {
         )
 
     val fr = mapOf(
+        "cas_more" to "Plus de thèmes",
+        "cas_community_title" to "Communauté Castix",
+        "cas_community_desc" to "Découvrez de nouveaux thèmes AMOLED, téléchargez les créations et partagez vos designs sur Telegram.",
+        "cas_store" to "Explorer les thèmes",
+        "cas_store_desc" to "Boutique Castix Mini App",
+        "cas_official_channel" to "Canal officiel",
+        "cas_channel_desc" to "Nouveaux thèmes, actualités et mises à jour",
+        "cas_group_desc" to "Discussion, partage, suggestions et assistance",
+        "cas_link_error" to "Impossible d’ouvrir le lien",
         "nav_home" to "Accueil",
         "nav_amoled" to "AMOLED",
         "nav_engines" to "Moteurs",
@@ -443,6 +452,15 @@ internal object AppStringsEuropean {
     )
 
     val es = mapOf(
+        "cas_more" to "Más temas",
+        "cas_community_title" to "Comunidad Castix",
+        "cas_community_desc" to "Descubre temas AMOLED, descarga creaciones y comparte tus diseños en Telegram.",
+        "cas_store" to "Explorar temas",
+        "cas_store_desc" to "Tienda Castix Mini App",
+        "cas_official_channel" to "Canal oficial",
+        "cas_channel_desc" to "Nuevos temas, noticias y actualizaciones",
+        "cas_group_desc" to "Debate, intercambio, sugerencias y ayuda",
+        "cas_link_error" to "No se pudo abrir el enlace",
         "nav_home" to "Inicio",
         "nav_amoled" to "AMOLED",
         "nav_engines" to "Motores",
@@ -862,6 +880,15 @@ internal object AppStringsEuropean {
     )
 
     val pt = mapOf(
+        "cas_more" to "Mais temas",
+        "cas_community_title" to "Comunidade Castix",
+        "cas_community_desc" to "Descubra temas AMOLED, baixe criações e compartilhe seus designs no Telegram.",
+        "cas_store" to "Explorar temas",
+        "cas_store_desc" to "Loja Castix Mini App",
+        "cas_official_channel" to "Canal oficial",
+        "cas_channel_desc" to "Novos temas, notícias e atualizações",
+        "cas_group_desc" to "Discussão, partilha, sugestões e suporte",
+        "cas_link_error" to "Não foi possível abrir o link",
         "nav_home" to "Início",
         "nav_amoled" to "AMOLED",
         "nav_engines" to "Motores",
@@ -1281,6 +1308,15 @@ internal object AppStringsEuropean {
     )
 
     val de = mapOf(
+        "cas_more" to "Weitere Designs",
+        "cas_community_title" to "Castix-Community",
+        "cas_community_desc" to "Entdecke AMOLED-Designs, lade Kreationen herunter und teile eigene Designs auf Telegram.",
+        "cas_store" to "Designs entdecken",
+        "cas_store_desc" to "Castix Mini App Design-Shop",
+        "cas_official_channel" to "Offizieller Kanal",
+        "cas_channel_desc" to "Neue Designs, Nachrichten und Updates",
+        "cas_group_desc" to "Diskussion, Austausch, Vorschläge und Hilfe",
+        "cas_link_error" to "Link konnte nicht geöffnet werden",
         "nav_home" to "Startseite",
         "nav_amoled" to "AMOLED",
         "nav_engines" to "Engines",
@@ -1700,6 +1736,15 @@ internal object AppStringsEuropean {
     )
     
         val it = mapOf(
+        "cas_more" to "Altri temi",
+        "cas_community_title" to "Community Castix",
+        "cas_community_desc" to "Scopri temi AMOLED, scarica le creazioni e condividi i tuoi design su Telegram.",
+        "cas_store" to "Esplora temi",
+        "cas_store_desc" to "Negozio Castix Mini App",
+        "cas_official_channel" to "Canale ufficiale",
+        "cas_channel_desc" to "Nuovi temi, notizie e aggiornamenti",
+        "cas_group_desc" to "Discussione, condivisione, suggerimenti e supporto",
+        "cas_link_error" to "Impossibile aprire il link",
         "nav_home" to "Home",
         "nav_amoled" to "AMOLED",
         "nav_engines" to "Motori",
@@ -2119,6 +2164,15 @@ internal object AppStringsEuropean {
     )
 
     val ru = mapOf(
+        "cas_more" to "Больше тем",
+        "cas_community_title" to "Сообщество Castix",
+        "cas_community_desc" to "Открывайте новые темы AMOLED, скачивайте работы и делитесь своими дизайнами в Telegram.",
+        "cas_store" to "Обзор тем",
+        "cas_store_desc" to "Магазин Castix Mini App",
+        "cas_official_channel" to "Официальный канал",
+        "cas_channel_desc" to "Новые темы, новости и обновления",
+        "cas_group_desc" to "Обсуждение, обмен, предложения и поддержка",
+        "cas_link_error" to "Не удалось открыть ссылку",
         "nav_home" to "Главная",
         "nav_amoled" to "AMOLED",
         "nav_engines" to "Движки",
@@ -2538,6 +2592,15 @@ internal object AppStringsEuropean {
     )
 
     val tr = mapOf(
+        "cas_more" to "Daha fazla tema",
+        "cas_community_title" to "Castix Topluluğu",
+        "cas_community_desc" to "Telegram üzerinden AMOLED temalarını keşfet, indir ve kendi tasarımlarını paylaş.",
+        "cas_store" to "Temaları keşfet",
+        "cas_store_desc" to "Castix Mini App tema mağazası",
+        "cas_official_channel" to "Resmî kanal",
+        "cas_channel_desc" to "Yeni temalar, haberler ve güncellemeler",
+        "cas_group_desc" to "Sohbet, paylaşım, öneriler ve destek",
+        "cas_link_error" to "Bağlantı açılamadı",
         "nav_home" to "Ana Sayfa",
         "nav_amoled" to "AMOLED",
         "nav_engines" to "Motorlar",
