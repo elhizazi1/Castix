@@ -127,11 +127,11 @@ fun MyApplicationTheme(
 
     // Dynamic UI Scale
     val currentDensity = LocalDensity.current
-    val scaleFactor = (appSettings.uiScalePercent / 100f).coerceIn(0.75f, 1.25f)
+    val scaleFactor = (appSettings.uiScalePercent / 100f).coerceIn(0.8f, 1.2f)
     val scaledDensity = remember(currentDensity, scaleFactor) {
         Density(
             density = currentDensity.density * scaleFactor,
-            fontScale = currentDensity.fontScale * scaleFactor
+            fontScale = currentDensity.fontScale
         )
     }
 

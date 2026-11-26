@@ -50,6 +50,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -406,7 +407,7 @@ fun SettingsScreen(
                                     settingsManager.updateUiScale(newVal.toInt())
                                 },
                                 valueRange = 80f..120f,
-                                steps = 3, // 80, 90, 100, 110, 120
+                                steps = 7, // 80, 85, 90, 95, 100, 105, 110, 115, 120
                                 colors = SliderDefaults.colors(
                                     thumbColor = MaterialTheme.colorScheme.primary,
                                     activeTrackColor = MaterialTheme.colorScheme.primary,
@@ -430,6 +431,13 @@ fun SettingsScreen(
                                     color = MaterialTheme.colorScheme.primary
                                 )
                             }
+                        }
+                        TextButton(
+                            onClick = { settingsManager.updateUiScale(DEFAULT_UI_SCALE_PERCENT) },
+                            enabled = appSettings.uiScalePercent != DEFAULT_UI_SCALE_PERCENT,
+                            modifier = Modifier.align(Alignment.End)
+                        ) {
+                            Text(AppStrings.get("settings_ui_scale_reset", lang))
                         }
                     }
                 }

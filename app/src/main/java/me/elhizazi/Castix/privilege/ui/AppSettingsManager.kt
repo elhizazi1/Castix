@@ -31,6 +31,8 @@ enum class ClockStyle {
     NEON_ORBIT, GOLDEN_ARCH, SAKURA_MOON, CHRONOGRAPH, CYBER_HUD, LUMINOUS_BUTTERFLY, EARTHRISE, MOONLIT_MOUNTAINS, NEON_DRAGON, ROYAL_MANDALA, AUDIO_AURA, CRYSTAL_LOTUS
 }
 
+const val DEFAULT_UI_SCALE_PERCENT = 90
+
 val ambientDurationOptions = listOf(3, 5, 10, 15, 30, 60, 120)
 
 data class AppAppSettings(
@@ -53,7 +55,7 @@ data class AppAppSettings(
     val floatingButtonSizeDp: Int = 54, // 36dp to 76dp
     val floatingButtonAlphaPercent: Int = 90, // 20% to 100%
     val floatingHapticFeedback: Boolean = true,
-    val uiScalePercent: Int = 100, // 80% to 120%
+    val uiScalePercent: Int = DEFAULT_UI_SCALE_PERCENT, // 80% to 120%
     val ambientAutoDim: Boolean = true,
     val ambientDurationSeconds: Int = 5
 )
@@ -101,7 +103,7 @@ class AppSettingsManager private constructor(private val context: Context) {
         val buttonSize = prefs.getInt("floating_btn_size", 54)
         val buttonAlpha = prefs.getInt("floating_btn_alpha", 90)
         val floatingHaptic = prefs.getBoolean("floating_haptic_feedback", true)
-        val uiScale = prefs.getInt("ui_scale_percent", 100)
+        val uiScale = prefs.getInt("ui_scale_percent", DEFAULT_UI_SCALE_PERCENT).coerceIn(80, 120)
 
         return AppAppSettings(
             themeMode = themeMode,
